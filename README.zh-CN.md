@@ -1,5 +1,7 @@
 # Agent Project Manager
 
+![Agent project manager](assets/illustrations/hero.png)
+
 [English](README.md) · [Skill 入口](SKILL.md) · [完整示例](examples/continuing-project.md)
 
 让 Agent 担任大型、持续型项目的项目经理，按里程碑组织团队，交付完整且可追溯的成果包。
@@ -48,6 +50,8 @@ git clone https://github.com/oldjin-ai/agent-project-manager.git ~/.codex/skills
 列出交付缺口并逐个里程碑补齐。最终给我完整的成果包和交付索引。
 ```
 
+![Purpose-built agent team](assets/illustrations/team.png)
+
 ## 附带工具
 
 用本机已核实的 Python 解释器执行。下面的 `python` 是跨平台示例。
@@ -59,6 +63,8 @@ python scripts/artifact_control.py check /项目路径/collaboration/project-off
 ```
 
 初始化会创建草稿。交付检查需要先声明该里程碑必需的成果，再核对文件摘要、评审、验证、缺陷与接受记录。工具使用方法和数据格式见 [工具说明](references/tooling.md)。
+
+![Reviewed milestone delivery](assets/illustrations/delivery.png)
 
 ## 当前成熟度
 

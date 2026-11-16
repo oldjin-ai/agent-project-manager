@@ -1,5 +1,7 @@
 # Agent Project Manager
 
+![Agent project manager](assets/illustrations/hero.png)
+
 [简体中文](README.zh-CN.md) · [Skill instructions](SKILL.md) · [Worked example](examples/continuing-project.md)
 
 An open-source skill for running substantial, continuing projects with an accountable agent PM, a purpose-built team, and reviewed milestone deliverables.
@@ -49,6 +51,8 @@ existing work, and close the most important delivery gaps milestone by milestone
 
 Generated role skills belong to the managed project. The PM supplies each role's instructions through the actual host channel and records the assigned model/session. A manual dispatch prompt supports environments where automatic delegation is unavailable.
 
+![Purpose-built agent team](assets/illustrations/team.png)
+
 ## Optional tools
 
 Run the scripts with your environment's verified Python executable. These portable examples assume it is available as `python`.
@@ -60,6 +64,8 @@ python scripts/artifact_control.py check /path/to/project/collaboration/project-
 ```
 
 The initializer creates draft records. A delivery check fails until the declared required artifacts have sufficient records and verified file bindings. See [tooling and register format](references/tooling.md).
+
+![Reviewed milestone delivery](assets/illustrations/delivery.png)
 
 ## Maturity
 
