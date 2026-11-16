@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Project Manager"
+  short_description: "Coordinate teams and deliver reviewed project milestones"
+  default_prompt: "Use $agent-project-manager to manage this continuing project from team formation through reviewed milestone delivery."

@@ -1,0 +1,51 @@
+Date 2026-11-16
+Platform Windows
+Python 3.13.14
+Command python -m unittest discover -s tests -v
+
+test_absolute_path_fails (test_artifact_control.DeliveryTests.test_absolute_path_fails) ... ok
+test_boolean_exit_code_fails (test_artifact_control.DeliveryTests.test_boolean_exit_code_fails) ... ok
+test_cli_initialize_and_seal (test_artifact_control.DeliveryTests.test_cli_initialize_and_seal) ... ok
+test_cli_pass_and_fail (test_artifact_control.DeliveryTests.test_cli_pass_and_fail) ... ok
+test_complete_fixture_passes (test_artifact_control.DeliveryTests.test_complete_fixture_passes) ... ok
+test_conditional_review_fails (test_artifact_control.DeliveryTests.test_conditional_review_fails) ... ok
+test_dependency_binding_fails (test_artifact_control.DeliveryTests.test_dependency_binding_fails) ... ok
+test_dependency_closure_passes (test_artifact_control.DeliveryTests.test_dependency_closure_passes) ... ok
+test_dependency_cycle_fails (test_artifact_control.DeliveryTests.test_dependency_cycle_fails) ... ok
+test_duplicate_artifact_fails (test_artifact_control.DeliveryTests.test_duplicate_artifact_fails) ... ok
+test_duplicate_json_keys_fail (test_artifact_control.DeliveryTests.test_duplicate_json_keys_fail) ... ok
+test_empty_milestones_fail (test_artifact_control.DeliveryTests.test_empty_milestones_fail) ... ok
+test_empty_payload_fails (test_artifact_control.DeliveryTests.test_empty_payload_fails) ... ok
+test_empty_required_set_fails (test_artifact_control.DeliveryTests.test_empty_required_set_fails) ... ok
+test_failed_or_skipped_verification_fails (test_artifact_control.DeliveryTests.test_failed_or_skipped_verification_fails) ... ok
+test_future_draft_is_scoped_to_milestone (test_artifact_control.DeliveryTests.test_future_draft_is_scoped_to_milestone) ... ok
+test_initializer_preserves_existing_directory (test_artifact_control.DeliveryTests.test_initializer_preserves_existing_directory) ... ok
+test_initializer_recovers_from_partial_write_failure (test_artifact_control.DeliveryTests.test_initializer_recovers_from_partial_write_failure) ... ok
+test_manifest_drift_fails (test_artifact_control.DeliveryTests.test_manifest_drift_fails) ... ok
+test_minor_risk_acceptance_passes (test_artifact_control.DeliveryTests.test_minor_risk_acceptance_passes) ... ok
+test_missing_approval_fails (test_artifact_control.DeliveryTests.test_missing_approval_fails) ... ok
+test_missing_array_fails (test_artifact_control.DeliveryTests.test_missing_array_fails) ... ok
+test_missing_required_artifact_fails (test_artifact_control.DeliveryTests.test_missing_required_artifact_fails) ... ok
+test_missing_required_reviewer_fails (test_artifact_control.DeliveryTests.test_missing_required_reviewer_fails) ... ok
+test_missing_reviews_fail (test_artifact_control.DeliveryTests.test_missing_reviews_fail) ... ok
+test_missing_verification_kind_fails (test_artifact_control.DeliveryTests.test_missing_verification_kind_fails) ... ok
+test_open_major_finding_fails (test_artifact_control.DeliveryTests.test_open_major_finding_fails) ... ok
+test_path_escape_fails (test_artifact_control.DeliveryTests.test_path_escape_fails) ... ok
+test_payload_drift_fails (test_artifact_control.DeliveryTests.test_payload_drift_fails) ... ok
+test_report_tamper_fails (test_artifact_control.DeliveryTests.test_report_tamper_fails) ... ok
+test_review_binding_fails (test_artifact_control.DeliveryTests.test_review_binding_fails) ... ok
+test_seal_refuses_overwrite (test_artifact_control.DeliveryTests.test_seal_refuses_overwrite) ... ok
+test_self_review_actor_fails (test_artifact_control.DeliveryTests.test_self_review_actor_fails) ... ok
+test_self_review_session_fails (test_artifact_control.DeliveryTests.test_self_review_session_fails) ... ok
+test_self_verified_defect_fails (test_artifact_control.DeliveryTests.test_self_verified_defect_fails) ... ok
+test_unauthorized_approver_fails (test_artifact_control.DeliveryTests.test_unauthorized_approver_fails) ... ok
+test_unknown_milestone_fails (test_artifact_control.DeliveryTests.test_unknown_milestone_fails) ... ok
+test_unlisted_payload_file_fails (test_artifact_control.DeliveryTests.test_unlisted_payload_file_fails) ... ok
+test_verification_binding_fails (test_artifact_control.DeliveryTests.test_verification_binding_fails) ... ok
+
+----------------------------------------------------------------------
+Ran 39 tests in 1.810s
+
+OK
+
+Exit code 0
