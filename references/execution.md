@@ -20,8 +20,9 @@ Unbounded parallelism causes write collisions, stale reviews, and wasted quota:
 - **Shared database / state protection**: Treat any shared baseline database or snapshot as strictly **read-only**. Tasks that mutate schemas, write records, or test failure injection must clone an isolated copy (or run inside isolated temp dirs) and clean up afterward.
 - **Cross-module scheduling**: Only run tasks in parallel when their write scopes are provably disjoint or isolated in clean, short-lived code branches/worktrees (never store heavy data snapshots or symlinks inside worktrees).
 
-## Monitoring, budgets, and stalled-run recovery
+## Monitoring, non-blocking yield, and stalled-run recovery
 
+- **Non-blocking turn handoff (never block on `wait_agent`)**: On callback-capable harnesses, launch background subagents (`run_in_background: true`), **report the dispatched items to the user immediately, and end the turn**. Never hold a turn open with `wait_agent` or long blocking wait calls; let the host's reactive completion signal wake the coordinator automatically, then advance the next ready step autonomously unless a user-reserved gate is reached.
 - **Match timeout budgets to observed runtimes**: When running heavy integration/E2E suites (for example 25–35 minute suites), launch in background with unbuffered logging and a `1.5x–2x` budget (45–60 minutes). Record exact elapsed durations so future dispatches budget realistically.
 - **Stalled-run kill-switch**: If an async execution or board task runs past the project stall threshold (default **90 minutes**) with zero workspace edits, logs, or artifact output on disk, settle/cancel it cleanly, record the diagnostic state, and split it into smaller tasks.
 - **Reconcile before retry**: On timeout, cancellation, or tool error, inspect actual child status and disk artifacts before re-dispatching. Never blindly retry writes, deployments, or pointer switches whose previous attempt may have succeeded partially.

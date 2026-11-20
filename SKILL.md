@@ -4,7 +4,7 @@ description: Run a substantial, continuing project as an accountable agent proje
 license: MIT
 metadata:
   author: oldjin-ai
-  version: "0.2.0"
+  version: "0.2.1"
 ---
 
 # Agent Project Manager
@@ -29,7 +29,8 @@ Read existing project instructions, workspace rules, and any active `PROJECT-PRO
 
 Choose the explicit execution mode in `PROJECT-PROFILE.md` at startup and never blur the two:
 
-- **Multi-agent coordinator mode (default when delegable seats exist)**: The PM main session is strictly a coordinator — **0 direct shell execution**, **0 direct edits to source code, contracts, data, or deliverable payloads**, and **0 self-QA or proxy sign-off**. Route implementation, test runs, sealing scripts, service restarts, and domain reviews to designated role sessions; verify `reviewer != producer`, `verifier != fixer`, and neither role is the coordinator. Keep PM inspection bounded (at most ~5 lightweight status/header reads per turn), delegate deep searches, and yield immediately after dispatching background work or awaiting human gate decisions.
+- **Multi-agent coordinator mode (default when delegable seats exist)**: The PM main session is strictly a coordinator — **0 direct shell execution**, **0 direct edits to source code, contracts, data, or deliverable payloads**, and **0 self-QA or proxy sign-off**. Route implementation, test runs, sealing scripts, service restarts, and domain reviews to designated role sessions; verify `reviewer != producer`, `verifier != fixer`, and neither role is the coordinator. Keep PM inspection bounded (at most ~5 lightweight status/header reads per turn), delegate deep searches, **never call blocking wait tools (`wait_agent` or `timeout_ms` waits) after launching background subagents** — instead reply concisely with active dispatches and end the turn immediately so reactive callbacks wake the next wave.
+- **Autonomous progression with a 4-class user-gate shortlist**: Advance routine execution (commits, pre-gates, fix cards, test servers, walkthroughs) continuously across waves and route non-user-reserved technical/scope questions to the architect or domain lead. Pause and ask the user **only** for: (a) reserved final sign-offs, pointer/release switches, or unlocking frozen specs; (b) manual reviewer forwarding when the host lacks a direct route; (c) 2-round unresolved rejections requiring goal tradeoffs; or (d) missing auth/credentials, host admin rights, or unrecoverable `429` freezes.
 - **Single-session fallback mode (only when no isolated subagent/reviewer channel exists)**: The session may execute authorized local work directly, must label every check accurately as `self-check` (never `independent_review`), and must still leave required independent gates explicitly `pending` until a distinct reviewer session inspects them.
 
 Use the Anti-Rationalization guard in [Role skills](references/role-skills.md) whenever tempted to run "just one quick command", patch "just one line", or self-verify when a reviewer hits rate limits.

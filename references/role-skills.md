@@ -15,14 +15,15 @@ In multi-agent mode, the PM main session enforces three non-negotiable boundarie
 2. **Zero direct edits to code, contracts, data, or deliverable artifacts**: Only update coordination status/handovers where delegated, or dispatch a governance/writer subagent so edits stay atomic and verified. Never hand-edit `CURRENT` pointers or manifests directly.
 3. **Zero self-QA or proxy sign-off**: Never issue `REVIEW-*.md`, never mark yourself as `verifier` on a defect, and never mark a board card done without raw independent evidence (`artifacts/records` or `record-external-outcome`).
 
-### Context budget and dispatch-and-yield
+### Context budget, non-blocking yield, and autonomous progression
 
 - Limit lightweight PM inspection reads/searches (`STATUS.md`, `PROJECT-PROFILE.md`, review conclusion headers) to at most **~5 calls per turn**. Delegate broad codebase scanning, diff audits, or multi-file hash verification to a read-only research/runner subagent returning a compact summary.
-- **Dispatch and yield**: Once background subagents are launched (or manual handoff prompts are prepared for the user), stop calling tools for the current turn, report the active dispatches clearly, and wait for callback wakeups or user input. Never poll in a loop or run a second wave before the active wave settles.
+- **Non-blocking dispatch-and-yield (never call `wait_agent`)**: Dispatch background subagents (`run_in_background: true`), **never invoke blocking wait tools (`wait_agent`, `timeout_ms` waits, or sleep polling) in the coordinator session**; immediately output a concise status update listing active dispatches and end the turn so the host's reactive completion callback wakes the coordinator.
+- **Autonomous progression & 4-class user-gate shortlist**: On each completion callback, advance routine work automatically (local commits, pre-gates, fixes, local service starts, walkthroughs) and route non-reserved technical/acceptance questions directly to the architect or domain owner. Interrupt the user **only** for: (a) user-reserved sign-offs, pointer/release switches, or unlocking frozen specs; (b) manual reviewer forwarding when the host lacks programmatic routing; (c) 2-round unresolved escalations requiring goal tradeoffs; or (d) missing logins/2FA, admin privileges, or unrecoverable quota exhaustion.
 
 ### Anti-rationalization guard
 
-When any of the following thoughts appear in multi-agent mode, treat it as a red flag and dispatch a subagent instead:
+When any of the following thoughts appear in multi-agent mode, treat it as a red flag and dispatch a subagent (or end the turn) instead:
 
 | Common PM excuse | Mandatory correction |
 | --- | --- |
@@ -31,9 +32,10 @@ When any of the following thoughts appear in multi-agent mode, treat it as a red
 | "The playbook says 'PM may act autonomously' here." | Autonomy means no extra approval wait before dispatching — execution still goes through a worker subagent. |
 | "Full tests/browser suites require host-level access." | Dispatch the host-runner subagent channel; host access belongs to the runner seat, not the PM main session. |
 | "I'll quickly re-run `seal` or `promote` scripts myself." | Dispatch the runner subagent to run lint -> seal -> check sequentially and return exit codes. |
-| "I'll poll until the server starts or the slow job finishes." | Bundle start/clean/run/verify inside one runner subagent; yield until it calls back. |
+| "I'll poll until the server starts or the slow job finishes." | Bundle start/clean/run/verify inside one runner subagent; end turn until it calls back. |
 | "The reviewer hit `429`; I'll spot-check it myself to unblock." | Freeze the blocked acceptance queue or use a pre-qualified fallback; never self-verify. |
 | "Let me scan 15 files first so my prompt is perfect." | Stay within 5 lightweight reads or dispatch 1 read-only research subagent first. |
+| "I'll call `wait_agent` to gather results before replying." | **Strictly banned.** Blocking waits freeze the UI for up to 15 minutes; reply with active dispatches and end the turn immediately. |
 
 ## Generate project-specific role skills
 

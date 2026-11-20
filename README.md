@@ -4,14 +4,15 @@
 
 [简体中文](README.zh-CN.md) · [Skill instructions](SKILL.md) · [Worked example](examples/continuing-project.md)
 
-An open-source skill (`v0.2.0`) for running substantial, continuing projects with an accountable pure-coordinator PM, a purpose-built agent team, zero-reseal artifact control, and reviewed milestone delivery.
+An open-source skill (`v0.2.1`) for running substantial, continuing projects with an accountable pure-coordinator PM, a purpose-built agent team, zero-reseal artifact control, and reviewed milestone delivery.
 
 The PM establishes the mandate and risk tier, verifies callable models at runtime, keeps mutable bindings in `PROJECT-PROFILE.md`, generates project-specific role skills, coordinates bounded parallel execution without self-QA, and delivers an inspectable handover package across sessions.
 
-## What is new in v0.2.0
+## What is new in v0.2.x
 
+- **Non-blocking coordinator & minimal user gates (`v0.2.1`)**: Dispatches background subagents (`run_in_background: true`) and yields immediately without `wait_agent` UI hangs; advances routine execution autonomously and pauses the user only on a strict 4-class gate shortlist.
 - **Two-plane sealing (`seal-scope` + external governance)**: Deliverable payloads/scopes never hash reviews, archived rounds, or sign-offs. Adding reviews or approvals requires **zero resealing**.
-- **Pure coordinator iron law**: Multi-agent PM sessions enforce zero direct shell execution, zero direct edits to deliverables, zero self-QA, bounded inspection reads, and callback-first dispatching.
+- **Pure coordinator iron law**: Multi-agent PM sessions enforce zero direct shell execution, zero direct edits to deliverables, zero self-QA, and bounded inspection reads.
 - **Risk-tiered governance (`Light` / `Standard` / `Strict`)**: Proportional process rigor with 1–2 round bootstrap checks, single append-only `RULEBOOK.md`, and `PROJECT-PROFILE.md` separation.
 - **Atomic batch acceptance & seal-once-on-submit**: Coupled deliverables stage in `review_passed` and receive one consolidated sign-off + atomic batch acceptance, ending repeated premature draft sign-offs.
 - **Streamlined review & quota resilience**: Mechanical pre-gates before spending model tokens, diff-based incremental re-reviews, tiered reviewer routing, `429` queue freezes without seat spoofing, and 2-round anti-loop escalation.
@@ -69,7 +70,7 @@ python scripts/artifact_control.py check /path/to/project/collaboration/project-
 
 ## Maturity
 
-Version 0.2.0 incorporates field hardening from multi-model software/data delivery runs, upgrading the structural tooling and documentation to eliminate reseal storms, premature sign-offs, coordinator drift, and quota bottlenecks. See [validation](docs/validation.md) for current automated check scope and observed limits.
+Version 0.2.1 builds on v0.2.0's field hardening from multi-model software/data delivery runs, adding non-blocking turn yields and a 4-class user-gate shortlist alongside two-plane sealing, atomic batch acceptance, and pure coordinator enforcement. See [validation](docs/validation.md) for current automated check scope and observed limits.
 
 The host supplies scheduling, execution channels, storage, and permissions. The optional checker verifies structural consistency and cryptographic bindings; authentic review and real-user acceptance remain the responsibility of designated reviewers and human approvers.
 

@@ -4,7 +4,7 @@ This skill runs across different agent hosts (callback-capable subagent orchestr
 
 ## 1. Execution channel priority
 
-1. **Callback-capable subagent (default)**: Prefer delegation primitives that return final output, exit state, and artifacts directly to the coordinator session when finished. This eliminates blind polling loops and disconnected status loss.
+1. **Callback-capable subagent (default, non-blocking yield)**: Prefer delegation primitives that return final output, exit state, and artifacts directly to the coordinator session when finished (`run_in_background: true`). **Never call blocking wait tools such as `wait_agent` after launching background subagents** — report what was dispatched immediately and end the turn so the host wakes the coordinator on completion instead of freezing the UI.
 2. **Task-board / async ledger (`create` + `record-external-outcome`)**: When the host exposes a task board whose runner starts an isolated, non-callback session, separate **execution** from **bookkeeping**:
    - Create a board card with the intended model/reasoning fields to reserve the slot and track dependencies.
    - Execute the work through the callback subagent channel (or authorized CLI runner).

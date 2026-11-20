@@ -1,8 +1,8 @@
 # Validation record
 
-Date 2026-11-20. Package version 0.2.0.
+Date 2026-11-20. Package version 0.2.1.
 
-## Local utility checks (v0.2.0)
+## Local utility checks (v0.2.1)
 
 Windows with Python 3.13.14. Run using the environment's verified interpreter with isolated temporary directories.
 
