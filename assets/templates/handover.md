@@ -2,18 +2,29 @@
 
 Project {{PROJECT_NAME}}
 
-## Accepted outcomes and current candidates
+```text
+Accepted 0/0 artifacts · Real-User Usable=No · Current Blocker: initialization pending
+```
 
-List milestone state and artifact/version/digest, with acceptance references.
+## Snapshot and pointers
 
-## In-flight work
+- Current `HEAD` revision and clean/dirty workspace summary (note any pre-existing untracked paths)
+- Canonical pointers: `PROJECT-PROFILE.md`, `RULEBOOK.md`, `records/artifacts.json`
 
-List task/run/session IDs, actual execution status, owners, paths, and last checkpoints.
+## Accepted outcomes, batches, and current candidates
 
-## Open findings and dependencies
+List milestone state, batch staging (`review_passed` vs. `accepted`), and artifact/version/`manifest_sha256` with acceptance references.
 
-List review findings, blockers, resource/model availability, pending external outcomes, and user-reserved decisions.
+## In-flight work and pending handoffs
 
-## Next executable actions
+List active subagent/task/run IDs, executing model identities, write scopes, last checkpoints, and manual prompts awaiting user return.
 
-Give ordered ready tasks, exact inputs, expected results, reviewer, and unblock conditions. Link the current charter, management plan, team, register, and raw evidence.
+## Open findings, blockers, and redlines
+
+List unresolved `blocking`/`major` findings, `429`/quota freezes, user-reserved decisions, and explicit redlines (what the incoming PM must NOT touch or promote).
+
+## Next 3-step startup and ready actions
+
+1. Load orchestrator skill + `agent-project-manager`.
+2. Run runtime model discovery (`list_subagent_models` or host equivalent) and verify against `PROJECT-PROFILE.md`.
+3. Read `PROJECT-PROFILE.md`, `STATUS.md`, and `records/artifacts.json`, then execute ordered ready tasks below.

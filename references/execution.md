@@ -1,31 +1,53 @@
-# Execution, monitoring, and recovery
+# Execution, WIP control, recovery, and continuity
 
 ## Dispatch contract
 
-Use `assets/templates/task.md`. Bind every task to a milestone, acceptance criteria, specific input versions, expected artifact IDs, write scope, resource budget, self-checks, designated reviewer, and output location. Include the assigned model, reasoning setting, session/run ID, and role skill revision.
+Use `assets/templates/task.md`. Keep prompts self-contained because subagents generally start with zero parent-session memory (`inheritsParentContext=false`). Bind every task dispatch to:
 
-Resolve upstream dependencies before dispatch. A provisional input needs a pinned version, an explicit experimental purpose, and the downstream revalidation condition. Schedule parallel tasks only when their outputs and write scopes are compatible. Assign a single writer to shared registers and generated views. Use short-lived code branches or worktrees according to repository rules and keep durable evidence in canonical project storage.
+- Task ID, milestone ID, and requirement IDs
+- Assigned role, exact provider/model, reasoning setting, and role skill path
+- Pinned input artifact versions/digests and explicit `RULEBOOK.md` entries
+- Exact **Allowed Write Paths** and **Forbidden Paths**
+- Mechanical pre-checks, expected output paths, and resource/timeout budget
+- Next designated reviewer or handoff recipient
 
-Track requested, acknowledged, running, submitted, review, rework, accepted, blocked, or cancelled states. An acknowledgement identifies the task/run and understood scope. A submitted artifact includes the actual output path, content version, self-check output, known limits, and next reviewer.
+## WIP limits and shared-resource isolation
 
-## Monitor through the completion condition
+Unbounded parallelism causes write collisions, stale reviews, and wasted quota:
 
-Use the host's supported wait or status channel. On meaningful progress, failure, or a needed user action, update the persistent status and the user. Polling cadence should reflect observed run duration and tool limits. Save checkpoints at task transitions and before session boundaries.
+- **Single writer per writable path**: Never allow more than **1** active implementation task targeting the same directory, module, or generated contract at a time. Merge tiny edits in the same module into one bounded task card.
+- **Global concurrency cap**: Keep simultaneous active construction tasks bounded (default `<= 2` active build tasks; read-only reviews and verification reads may run separately within quota limits).
+- **Shared database / state protection**: Treat any shared baseline database or snapshot as strictly **read-only**. Tasks that mutate schemas, write records, or test failure injection must clone an isolated copy (or run inside isolated temp dirs) and clean up afterward.
+- **Cross-module scheduling**: Only run tasks in parallel when their write scopes are provably disjoint or isolated in clean, short-lived code branches/worktrees (never store heavy data snapshots or symlinks inside worktrees).
 
-For a failed task, preserve the error, diagnose its specific cause, choose an in-scope correction, and rerun the affected operation. Bound retries by the action's semantics and the project's resource limits. Read current state before retrying uploads, writes, deployments, or other actions whose prior outcome is uncertain.
+## Monitoring, budgets, and stalled-run recovery
 
-For quota exhaustion, inspect the reset time and reassess qualified fallbacks. For a missing credential or user decision, leave dependent work pending with an exact unblock action and continue other ready work. Escalate repeated failure with the evidence, attempted fixes, impact on the critical path, and a recommended decision.
+- **Match timeout budgets to observed runtimes**: When running heavy integration/E2E suites (for example 25–35 minute suites), launch in background with unbuffered logging and a `1.5x–2x` budget (45–60 minutes). Record exact elapsed durations so future dispatches budget realistically.
+- **Stalled-run kill-switch**: If an async execution or board task runs past the project stall threshold (default **90 minutes**) with zero workspace edits, logs, or artifact output on disk, settle/cancel it cleanly, record the diagnostic state, and split it into smaller tasks.
+- **Reconcile before retry**: On timeout, cancellation, or tool error, inspect actual child status and disk artifacts before re-dispatching. Never blindly retry writes, deployments, or pointer switches whose previous attempt may have succeeded partially.
 
-On cancellation or timeout, inspect actual child/run state. Record whether work stopped, continued, or has an unknown outcome. Recover partial output and reconcile ownership before redispatch. A tool timeout alone leaves execution outcome uncertain.
+## 2-round anti-loop escalation
 
-## Resume or hand over
+Do not trap developer and reviewer agents in endless ping-pong loops:
 
-Read the current handover, charter, artifact register, active milestone, in-flight task IDs, and unresolved findings. Verify the relevant workspace and service/run state. Detect changed inputs, obsolete model assignments, and missing evidence. Restore a coherent next action before starting a new task.
+1. Allow at most **2 reject-fix-retest cycles** on the same artifact/defect, or **2 consecutive identical environment/quota failures** (`429`, hangs, missing tool auth).
+2. On hitting the limit, **stop re-dispatching the same prompt**.
+3. Collect the task/artifact ID, raw failure logs from both rounds, root-cause diagnosis, and **2–3 concrete resolution options** (e.g., split scope, revise ruling in `RULEBOOK.md`, update contract, or pause queue), then escalate to the designated technical/product authority or the user.
 
-Use `assets/templates/handover.md`. Include accepted outputs, pending reviews, task/run IDs, exact candidate versions, unfinished external actions, dependency blockers, resource status, next ready tasks, and user-reserved decisions. Link raw records. Keep the next-step list executable by a fresh PM session.
+## Handover and status discipline
 
-## Change and drift
+Always start user progress reports with the fixed **3-line executive status header**:
 
-For changed scope, interfaces, data, models, or acceptance criteria, record the reason, authority, affected artifact versions, downstream consumers, and required retests. Preserve the previous baseline and findings. Mark the affected evidence stale until the relevant revalidation completes.
+```text
+Accepted N/M artifacts · Real-User Usable=Yes/No · Current Blocker: <concrete blocker or none>
+```
 
-Use content digests or pinned versions for binding. Scope digests to the inputs actually consumed so unrelated repository changes have proportionate impact. Record code revision plus dirty changes and configuration/data versions where they affect behavior. Plan a new candidate and its review for accepted content changes.
+Never replace accepted-artifact progress and live usability with task-board `done` counts or percentage completion.
+
+At milestone boundaries, context expansion, or session handoffs, update `STATUS.md` using `assets/templates/handover.md` so a fresh PM session starts cold with zero guesswork:
+
+- Current `HEAD` commit + dirty workspace summary (distinguishing pre-existing untracked files)
+- `Accepted N/M` breakdown, active batch status, and canonical pointers
+- Active/pending task IDs and manual handoffs awaiting response
+- Open blocking/major findings and redlines (what the handoff session must NOT do: e.g., never self-sign, never promote unreviewed candidates, never switch production pointers)
+- **Exact 3-step startup sequence** for the next PM session: (1) load the orchestrator skill, (2) run runtime model discovery (`list_subagent_models` / host check), (3) read `PROJECT-PROFILE.md` + `STATUS.md` + `records/artifacts.json` before issuing any task.

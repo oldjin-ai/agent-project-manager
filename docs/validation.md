@@ -1,38 +1,30 @@
 # Validation record
 
-Date 2026-11-16. Package version 0.1.0.
+Date 2026-11-20. Package version 0.2.0.
 
-## Local utility checks
+## Local utility checks (v0.2.0)
 
-Windows with Python 3.13.14. The actual command was run using the environment's verified interpreter with isolated temporary output.
+Windows with Python 3.13.14. Run using the environment's verified interpreter with isolated temporary directories.
 
 ```text
 python -m unittest discover -s tests -v
-Ran 39 tests
+Ran 52 tests
 OK
 Exit code 0
 ```
 
-The suite exercises both script entrypoints and accepted/rejected structural delivery cases. Cases include empty requirements, missing artifacts, milestone scoping, self-review identities, conditional review, missing approval, changed payloads/manifests/reports, stale evidence, skipped checks, boolean exit codes, dependency closure/cycles, duplicate records, unsafe paths, open major findings, independent defect verification, risk acceptance, initialization failure recovery, and overwrite protection. Fixtures are synthetic. Raw output is in [tool-tests.txt](validation/tool-tests.txt).
+The suite covers all 39 baseline payload-sealing/register checks from v0.1.0 plus 13 new tests for v0.2.0: `init_project.py` scaffolding (`PROJECT-PROFILE.md` and `RULEBOOK.md`), `seal-scope` live deliverable sealing with cache skipping and symlink/overwrite/self-reference refusal, zero-reseal governance additions outside sealed manifests, `review_history` append-only integrity, atomic `batches` enforcement across milestone scoping, `coordinator_actor` review/defect-verifier purity checks, and CLI `seal-scope` / `check --project-root` round-trips. Raw output is in [tool-tests.txt](validation/tool-tests.txt).
 
-The skill-creator frontmatter validator returned `Skill is valid!`. A package check also verifies the skill directory/frontmatter name match, local Markdown references, and the publication file inventory.
+A package validation check also verifies skill directory/frontmatter name parity, allowed Agent Skills frontmatter keys, local Markdown link resolution across all documents, LF line endings, and zero private/environment identifiers.
 
-## Independent review
+## Earlier v0.1.0 evaluations
 
-A distinct reviewer session inspected the actual instructions, references, templates, documentation, and utility source. It found a minor initializer recovery issue. The correction rolls back only initialization-owned files and empty directories on write failure and preserves existing destinations. The reviewer inspected that correction and independently ran two focused recovery/preservation tests successfully. The [review report](validation/independent-review.md) preserves the finding and closure with inspected source digests.
-
-## Isolated forward-test
-
-A separate session used the skill for a fictional in-flight volunteer-handbook project with three milestones, one available session, zero budget for further model calls, missing prior-draft evidence, and a pending reviewer channel. It produced an initiation/takeover package, two role skills, a task dispatch, a 12-slot outline, source-gap matrix, and handover.
-
-Five focused structural self-checks passed and six local Markdown links resolved. The delivery checker returned exit code 1 for the draft milestone, retaining pending acceptance. The trial surfaced two usability ambiguities, which led to explicit handling of host-hidden model metadata and a compact draft-register example.
-
-Inspection of the generated role packages also found an initial folder/frontmatter name mismatch. The source instructions now specify exact equality. A follow-up produced corrected role packages that passed frontmatter validation and explicit directory-name assertions, while preserving the original trial files. The [forward-test report](validation/forward-test.md) records the original gap and follow-up.
-
-Both evaluating sessions inherited the parent discussion. Their work provides separate-session evidence with contextual exposure. It covers preparation, takeover, role packaging, structural controls, and resumable records.
+During v0.1.0 release preparation (2026-11-16):
+- **Independent review**: A distinct reviewer session audited the instructions, references, templates, and Python utilities, surfacing an initializer rollback cleanup defect that was fixed and verified with focused recovery tests ([review report](validation/independent-review.md)).
+- **Isolated forward-test**: A separate session executed a fictional multi-milestone project takeover scenario, surfacing host-hidden model metadata handling and folder/frontmatter naming rules ([forward-test report](validation/forward-test.md)).
 
 ## Remaining validation
 
-Long-duration monitoring, live heterogeneous-model selection, substantive completion of an entire managed project, outcome improvement, and additional host integrations require field trials. The checked-in CI matrix targets Windows and Linux with Python 3.10 and 3.13. Its remote run status belongs to the repository's Actions history after publication.
+Cross-host long-duration runs of v0.2.0 two-plane workflows, live multi-provider `429` quota fallback execution, and end-to-end field outcomes remain subject to ongoing project trials. The checked-in CI workflow tests Windows and Linux across Python 3.10 and 3.13.
 
-The optional tools establish consistency of local files and declared acceptance records. The designated reviewer and acceptance authority remain responsible for authentic review, adequate verification, and substantive project correctness.
+The optional utilities verify structural file/record consistency and cryptographic digests. Substantive deliverable quality, authentic independent review, and real-user usability remain the responsibility of the designated reviewers and acceptance authority.

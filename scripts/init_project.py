@@ -9,6 +9,8 @@ from pathlib import Path
 DOCUMENTS = {
     "charter.md": "CHARTER.md",
     "management-plan.md": "MANAGEMENT-PLAN.md",
+    "project-profile.md": "PROJECT-PROFILE.md",
+    "rulebook.md": "RULEBOOK.md",
     "team.md": "TEAM.md",
     "model-evaluation.md": "MODEL-EVALUATION.md",
     "milestones.md": "MILESTONES.md",
@@ -46,7 +48,7 @@ def initialize(destination, name):
             created.append(path)
         for output, content in documents.items():
             path = destination / output
-            with path.open("x", encoding="utf-8") as stream:
+            with path.open("x", encoding="utf-8", newline="\n") as stream:
                 created.append(path)
                 stream.write(content)
     except OSError as error:

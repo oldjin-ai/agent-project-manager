@@ -1,27 +1,45 @@
-# Generate project-specific role skills
+# Role skills and pure coordinator discipline
 
-Use `assets/templates/role-skill.md` to create one skill per occupied role, including PM. Store them in the project's permitted location, for example `<office>/roles/<project-role-name>/SKILL.md`. Choose a lowercase alphanumeric-and-hyphen name of at most 64 characters and use that exact name for both the directory and frontmatter `name`. Record the skill revision or digest in TEAM and task dispatches. Discoverability varies by host. Pass the file path and relevant instructions explicitly to each assigned session.
+## Choose the operating mode explicitly
 
-Resolve the template into concrete project instructions. State the role's objective, authoritative inputs, outputs, acceptance evidence, write paths, decision limits, collaborators, escalation, and completion receipt. Use stable IDs and references to current records. Load only the role's necessary context. Give domain specialists the evidence and calculation conventions their work requires.
+Declare the active operating mode in `PROJECT-PROFILE.md` before creating role skills:
 
-## Role-specific obligations
+- **Multi-agent coordinator mode (default)**: The PM main session owns scheduling, scope control, dependency tracking, ledger integrity, and escalation. It delegates **all** execution, coding, file sealing, testing, and substantive review to specialized role sessions.
+- **Single-session fallback mode**: Used only when the host provides one session without subagents or independent reviewer channels. Every check run in that session must be labeled `self-check`, and required independent reviews remain `pending` until an external reviewer session completes them.
 
-| Role | Tailor these obligations |
+## Pure coordinator iron law (multi-agent mode)
+
+In multi-agent mode, the PM main session enforces three non-negotiable boundaries:
+
+1. **Zero direct shell execution**: Do not invoke bash/PowerShell/terminal tools directly for builds, tests, `curl` probes, service restarts, log grepping, or sealing/registry scripts. Route them to a dedicated execution runner seat.
+2. **Zero direct edits to code, contracts, data, or deliverable artifacts**: Only update coordination status/handovers where delegated, or dispatch a governance/writer subagent so edits stay atomic and verified. Never hand-edit `CURRENT` pointers or manifests directly.
+3. **Zero self-QA or proxy sign-off**: Never issue `REVIEW-*.md`, never mark yourself as `verifier` on a defect, and never mark a board card done without raw independent evidence (`artifacts/records` or `record-external-outcome`).
+
+### Context budget and dispatch-and-yield
+
+- Limit lightweight PM inspection reads/searches (`STATUS.md`, `PROJECT-PROFILE.md`, review conclusion headers) to at most **~5 calls per turn**. Delegate broad codebase scanning, diff audits, or multi-file hash verification to a read-only research/runner subagent returning a compact summary.
+- **Dispatch and yield**: Once background subagents are launched (or manual handoff prompts are prepared for the user), stop calling tools for the current turn, report the active dispatches clearly, and wait for callback wakeups or user input. Never poll in a loop or run a second wave before the active wave settles.
+
+### Anti-rationalization guard
+
+When any of the following thoughts appear in multi-agent mode, treat it as a red flag and dispatch a subagent instead:
+
+| Common PM excuse | Mandatory correction |
 | --- | --- |
-| PM | Charter and authority, team selection, dependency graph, dispatch, resource limits, artifact inventory, milestone status, recovery, final handover |
-| Product owner | Requirement IDs, user paths, domain semantics, scope decisions, acceptance scenarios, change impact |
-| Architect | Component and data boundaries, interfaces, alternatives, feasibility, failure/recovery design, technical decisions |
-| Builder | Pinned inputs, normal entry points, implementation scope, output snapshot, relevant self-checks, change summary |
-| Domain expert | Primary-source verification, provenance, units, assumptions, uncertainty, reproducibility |
-| QA/reviewer | Independent session, artifact binding, adversarial cases, actual user-path verification, findings and retest evidence |
-| Operations | Target environment, packaging, deployment authorization, smoke checks, observability, rollback, operational handover |
+| "I'll just fix this 1-line typo / config / register line myself." | Dispatch the owning role subagent; even a 1-character direct edit breaks coordinator purity. |
+| "I only want to run one quick `curl` or status command." | Dispatch a read-only runner subagent to execute and return the raw output + exit code. |
+| "The playbook says 'PM may act autonomously' here." | Autonomy means no extra approval wait before dispatching — execution still goes through a worker subagent. |
+| "Full tests/browser suites require host-level access." | Dispatch the host-runner subagent channel; host access belongs to the runner seat, not the PM main session. |
+| "I'll quickly re-run `seal` or `promote` scripts myself." | Dispatch the runner subagent to run lint -> seal -> check sequentially and return exit codes. |
+| "I'll poll until the server starts or the slow job finishes." | Bundle start/clean/run/verify inside one runner subagent; yield until it calls back. |
+| "The reviewer hit `429`; I'll spot-check it myself to unblock." | Freeze the blocked acceptance queue or use a pre-qualified fallback; never self-verify. |
+| "Let me scan 15 files first so my prompt is perfect." | Stay within 5 lightweight reads or dispatch 1 read-only research subagent first. |
 
-Add roles for the project's actual work. For research, useful roles may include investigator, domain reviewer, analyst, and editor. A model occupies the role with its own tools and capability limits. Keep role instructions aligned with the real channel.
+## Generate project-specific role skills
 
-## PM boundaries
+Use `assets/templates/role-skill.md` to author one tailored `SKILL.md` per occupied role (including PM) under `<office>/roles/<role-name>/SKILL.md`.
 
-The PM owns coordination and delivery accounting. They route substantive judgments to the designated role, resolve authorized routine choices, and escalate reserved decisions with a concrete evidence package. They preserve review findings and keep acceptance conditions intact. The PM's management plan, role skill, and substantive authored outputs receive independent review. The PM records who accepted a risk and the scope of that decision.
-
-## Review role skills before broad use
-
-Check conflicts, unreachable responsibilities, overlapping write ownership, accidental release authority, and missing review obligations. Have a separate reviewer inspect the PM skill and management plan together. Update affected dispatches when role constraints change. Preserve earlier revisions for interpreting historical work.
+- Use a lowercase alphanumeric-and-hyphen directory name (`<= 64` chars) matching frontmatter `name:` exactly.
+- Bind each role skill to `CHARTER.md`, `MANAGEMENT-PLAN.md`, and `PROJECT-PROFILE.md` by reference rather than hardcoding volatile file counts, model IDs, or hashes inside the skill body.
+- Define clear **Allowed Write Paths**, **Forbidden Paths**, **Self-Check Requirements**, **Independent Reviewer Recipient**, and **Escalation Triggers**.
+- Check generated role skills for overlapping write ownership or accidental self-review loops before broad use, and verify the PM skill alongside `MANAGEMENT-PLAN.md` in the initial 1–2 round bootstrap review.

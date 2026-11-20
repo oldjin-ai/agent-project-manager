@@ -1,8 +1,8 @@
-# Initiation and management authority
+# Initiation, risk tiers, and management authority
 
 ## Intake
 
-Recover answers already present in the conversation, repository, and current project records. Present a concise mandate to the user in their language.
+Recover answers already present in the conversation, repository, and existing project records. Present a concise mandate to the user in their working language.
 
 | Area | Record |
 | --- | --- |
@@ -12,31 +12,44 @@ Recover answers already present in the conversation, repository, and current pro
 | Dependencies | Access, data, people, APIs, hardware, environment, licenses, and external dates |
 | Resources | Available agents/models, tools, execution channels, concurrent seats, and storage |
 | Limits | Budget, quota, deadline, availability, and permission boundaries |
-| Authority | PM decisions, user-reserved decisions, and existing authorization references |
-| Continuity | Current truth source, retention, handover location, and intended operating horizon |
+| Authority | PM-delegated decisions, user-reserved decisions, and existing authorization references |
+| Continuity | Current truth source, retention, handover location, and operating horizon |
 
-Classify unknowns by which action they affect. Ask about material gaps together. A missing release credential can leave publication pending while research, implementation, and local validation continue. Record who must supply each dependency and a realistic checkpoint.
+Classify unknowns by which action they affect. Ask one compact batch of questions for consequential unknowns. Leave downstream dependencies (such as missing release credentials) explicitly pending while authorized discovery, implementation, and local verification proceed.
 
-An explicit request to complete a defined project is the execution mandate within its stated boundaries. Present routine planning choices for visibility and continue. Ask for decisions where the missing answer changes a material commitment or where an action lacks permission.
+An explicit request to complete a defined project is the execution mandate within its stated boundaries. Present routine planning choices for visibility and continue. Never assume permission for destructive operations, external releases, or boundary overrides.
 
-## Management plan as a first deliverable
+## Risk-tiered governance sizing
 
-Use `assets/templates/management-plan.md`. Specify the artifact inventory, responsibilities, reviewer independence, accepted evidence, severity policy, change authority, escalation criteria, storage, cadence, and final handover format.
+Size governance rigor to project risk on day one instead of imposing one rigid pipeline on every task:
 
-The PM authors the plan and their own role skill. A separate reviewer evaluates both against the user's mandate and host constraints. Record the plan revision, reviewer session, findings, corrections, and decision. Apply user approval to the boundaries they retain. Set interim coordination rules explicitly while this review is pending.
+| Tier | When to use | Minimum deliverables & gates |
+| --- | --- | --- |
+| **Light** | Short utilities, internal analysis, small single-module prototypes | Compact `CHARTER.md` + `STATUS.md`; 1 independent check or user acceptance before declaring done |
+| **Standard** | Multi-component software, recurring research portals, external documentation | Two-plane sealing on submit (`draft -> in_review`), mechanical pre-gate, diff-based re-review, batch sign-off |
+| **Strict** | Production launches, multi-team pipelines, regulated/high-stakes releases | Full RACI, `PROJECT-PROFILE.md` + `RULEBOOK.md`, multi-seat independent review, live user-path walkthrough, atomic batch gates |
 
-Size the process to risk. Reviews can cover a coherent group of artifacts in one session while recording a decision per version. Use existing issue trackers, file conventions, or artifact storage if they already serve the project. Keep one authoritative state record and derive summaries from it.
+Write the selected tier and execution mode (`multi-agent` vs. `single-session`) into `PROJECT-PROFILE.md`.
+
+## Two-layer setup and fast bootstrap
+
+Separate **stable operating methodology** from **volatile project bindings**:
+
+- **Stable layer (`MANAGEMENT-PLAN.md` + role `SKILL.md` files)**: Defines ownership, reviewer independence, sealing rules, escalation triggers, and completeness standards.
+- **Mutable binding layer (`PROJECT-PROFILE.md`)**: Stores live canonical pointers, verified runtime model/provider names, write-scope boundaries, domain redlines, and any legacy compatibility notes. Role skills reference `PROJECT-PROFILE.md` instead of copying mutable file counts, hashes, or model IDs.
+
+Use `assets/templates/management-plan.md` and `assets/templates/project-profile.md`. Author `MANAGEMENT-PLAN.md`, `PROJECT-PROFILE.md`, and the PM role skill cleanly, pass mechanical lint checks, and send them to a separate reviewer for a **1–2 round bootstrap check**. Incorporate substantive findings and record the baseline decision before unlocking broad downstream construction. Avoid spending 10+ review rounds polishing meta-governance before real deliverables move.
 
 ## Milestone planning
 
-Work backward from the final outcome. For each milestone specify the usable result, required artifact versions, dependencies, critical-path tasks, capacity assumptions, quality gates, and decision owner. Include discovery or feasibility milestones when a dependency remains uncertain. Estimate time and cost using observed runs or labeled assumptions.
+Work backward from the final outcome. For each milestone specify the usable result, required artifact versions, dependencies, critical-path tasks, capacity assumptions, quality gates, and acceptance authority.
 
-Define what can be explored using candidate inputs and what needs accepted inputs. Parallel work can use a pinned candidate when its provisional status and rework risk are recorded. Acceptance dependencies form an acyclic graph. For a deployment, create the candidate package first, test that package, then accept the package and report against the same digest.
-
-Maintain one current milestone plan. Preserve earlier plans and record why priority, scope, resources, dates, or acceptance changed. User-requested work keeps its explicit completion condition throughout rescheduling.
+- Define explicit **atomic batches** in `records/artifacts.json` (`batches`) when tightly coupled artifacts (e.g., backend + frontend, or acceptance report + deployment package) must be accepted together under one human sign-off.
+- Keep acceptance dependencies acyclic. Candidate artifacts can be tested in parallel using pinned provisional inputs when the provisional status and revalidation trigger are recorded.
+- Derive human-readable progress tables from the canonical JSON register rather than hand-copying counts and digests across multiple files.
 
 ## Taking over an existing project
 
-Inventory the actual outputs, existing decisions, in-flight work, and open findings. Check a bounded sample of claimed passes against raw evidence. Label historical claims as reported, verified, missing, or superseded. Record which exact versions are currently being consumed.
+Inventory actual outputs, existing decisions, in-flight tasks, and open findings before dispatching new construction. Sample claimed passes against raw logs and current files; label each claim accurately as `verified`, `reported`, `missing`, or `superseded`.
 
-Produce a gap list and a retrofit plan. Preserve the existing development trail and live services. Introduce independent review of the management plan and the highest-risk missing evidence. Set any temporary dependency exception with a named owner, affected consumers, expiry, and compensating verification. Exceptions carry a visible unresolved status until closure and require authority appropriate to their impact.
+Where a legacy workspace already uses its own sealing or review scripts, document those legacy rules explicitly under **Legacy Compatibility Notes** in `PROJECT-PROFILE.md` (with a clear retirement path for the next major version) instead of breaking mid-flight pipelines. Prioritize closing missing outcome evidence, stabilizing broken gates, and halting premature draft sign-offs or repeated reseals.

@@ -4,32 +4,30 @@
 
 [English](README.md) · [Skill 入口](SKILL.md) · [完整示例](examples/continuing-project.md)
 
-让 Agent 担任大型、持续型项目的项目经理，按里程碑组织团队，交付完整且可追溯的成果包。
+让 Agent 担任大型、持续型项目的纯粹总控项目经理（`v0.2.0`），通过职责隔离、两平面零重封控制、风险分级治理与独立评审，组织多角色团队跨会话稳定交付完整成果。
 
-项目经理从接到需求开始，明确目标、依赖、可用资源和决策权限，根据项目需要组建团队，查证各模型的能力并进行小规模实测，为每个角色编写项目专属 skill。随后组织执行、评审、修订、验证和定版，保留每一轮实质成果及评审记录，并支持跨会话接续。
+项目经理在立项时明确目标、风险分级与权限边界，于运行时实查可调用模型并将易变绑定写入 `PROJECT-PROFILE.md`，为每个角色生成项目专属 skill，遵循“0 亲跑命令、0 亲改代码、0 自审代签”的纯调度铁律组织推进，并产出可审计的交接索引。
 
-## 运行方式
+## v0.2.0 核心升级
 
-1. **立项**。把目标、使用者、范围、交付格式、验收标准、依赖、预算、时间和授权写进项目章程。已知信息直接复用，关键缺口集中向用户询问。
-2. **组队与选模**。先确定职责和能力要求，再查阅当前官方模型资料、评测原文与本项目试题结果。记录具体模型、配置、可用性、选择理由和候补顺序。
-3. **制定管理方案和角色规范**。项目经理也有自己的专属 skill。管理方案和 PM 规范接受独立评审，明确每类成果的负责人、评审人、验证方法与定版权限。
-4. **逐个里程碑推进**。按依赖派发任务，跟踪真实执行状态，处理阻塞，保留失败和恢复记录，完成当前里程碑后推进下一项可执行工作。
-5. **评审、验证和定版**。关键成果绑定版本与内容摘要，独立评审后修订，按真实用户路径或专业判据验证，再由有权限的角色接受。
-6. **交付与接续**。交付索引覆盖需求、成果、评审、缺陷、验证、决策、运行说明和遗留限制。会话中断时留下可被下一位 PM 直接执行的交接记录。
-
-团队规模和成果清单随项目调整。软件、研究、内容和其他持续项目可以采用各自的产物与专业验证方式。已有项目可以从盘点、核验和补齐证据开始接管。
+- **两平面封签（`seal-scope` + 外置治理平面）**：内容清单仅封存交付物本体（自动排除 `.git`、缓存与治理目录），评审文件、历史归档、测试日志与签署件全部外置并向下绑定 `manifest_sha256`——新增评审或签认**零重封**。
+- **纯总控调度铁律**：多 Agent 模式下总控主会话严禁直接跑 Shell、直接改源码/契约/产物、或代跑自验；单轮轻读受控，优先使用可回调子智能体，派单即止。
+- **风险分级治理（`Light` / `Standard` / `Strict`）**：按项目风险匹配治理重量；方案与 PM 规范限 1–2 轮建制复核；稳定方法与易变绑定分层，单一只追加 `RULEBOOK.md` 统一口径。
+- **送审一次封签与同批原子定版**：草稿期零封签，先过机械前置门再在送审时一次封签；耦合产物停留在 `review_passed` 集中一次签认并整批原子定版，杜绝“草稿已签又重签”的循环。
+- **精简复审与额度韧性**：第 2 轮起基于 diff 增量复审；稀缺强评审聚焦终验，常规卡走机械门禁+非作者复核；遇 429 原地冻结或启用合格备选，严禁换弱模型冒充席位；同一缺陷最多 2 轮即升级。
+- **真实用户完整性底线与跨宿主适配**：内置 8 类真实用户可感知缺口判据、诚实空态规范、固定三行汇报口径与多宿主工具适配指南。
 
 ## 安装
 
-将仓库克隆到宿主支持的技能目录，目标路径应尚未存在。使用 `~/.codex/skills` 的 Codex 环境可参考
+将仓库克隆或真实复制到宿主支持的技能目录（勿使用符号链接或目录联接），目标路径应尚未存在。Codex（`~/.codex/skills`）示例：
 
 ```bash
 git clone https://github.com/oldjin-ai/agent-project-manager.git ~/.codex/skills/agent-project-manager
 ```
 
-其他支持 Agent Skills 的宿主使用其技能发现目录。也可以把 `SKILL.md` 的路径交给 Agent，明确要求按该技能执行。项目级安装目录以宿主当前规范为准。
+其他支持 Agent Skills 的宿主（如 DeepSeek Harness 的 `~/.dsh/skills`）可复制到对应技能目录，或将 `SKILL.md` 路径显式交给 Agent 执行。
 
-技能正文使用英文，项目输出采用用户要求的语言。指令层由 Markdown/YAML 组成，附带工具需要 Python 3.10+，使用标准库。模型调用、团队调度、联网和存储依赖宿主提供的能力与授权。
+技能正文为英文，项目输出使用用户指定语言。工具脚本仅依赖 Python 3.10+ 标准库，无第三方依赖。
 
 ## 开始一个项目
 
@@ -37,46 +35,43 @@ git clone https://github.com/oldjin-ai/agent-project-manager.git ~/.codex/skills
 使用 $agent-project-manager 担任这个持续型项目的项目经理。
 目标是……，最终交付包括……，验收标准是……。
 可用资源有……，预算和时间约束是……，已授权的操作是……。
-请先完成立项、资源与模型评估、团队组建、每个角色的专属 skill，
-以及经过独立评审的项目管理方案，再按里程碑推进至完整交付。
+请先完成立项、PROJECT-PROFILE.md、运行时模型核验、各角色专属 skill，
+以及按风险分级的项目管理方案，再按里程碑推进至完整交付。
 缺少会改变项目承诺的关键输入时向我询问，其他已授权工作继续执行。
 ```
 
-接管在建项目可使用
+接管在建项目可使用：
 
 ```text
 使用 $agent-project-manager 接管当前项目。
-先核对真实进展，盘点成果和评审证据，保留已有工作，
-列出交付缺口并逐个里程碑补齐。最终给我完整的成果包和交付索引。
+先依据原始凭证核对真实进展，保留已有成果与兼容旧门禁，
+切换至两平面零重封并消除提前草稿签认，逐个里程碑补齐交付缺口。
 ```
 
 ![Purpose-built agent team](assets/illustrations/team.png)
 
 ## 附带工具
 
-用本机已核实的 Python 解释器执行。下面的 `python` 是跨平台示例。
+使用本机已核实的 Python 解释器执行（下文 `python` 为跨平台示例）：
 
 ```bash
 python scripts/init_project.py /项目路径/collaboration/project-office --name "项目名称"
+python scripts/artifact_control.py seal-scope /项目路径/collaboration/project-office/artifacts/A09/v1/manifest.json --root /项目路径 --scope apps/backend/src apps/backend/tests --exclude-prefix collaboration/project-office
 python scripts/artifact_control.py seal /项目路径/collaboration/project-office/artifacts/A01/v1/payload
-python scripts/artifact_control.py check /项目路径/collaboration/project-office/records/artifacts.json
+python scripts/artifact_control.py check /项目路径/collaboration/project-office/records/artifacts.json --project-root /项目路径
 ```
 
-初始化会创建草稿。交付检查需要先声明该里程碑必需的成果，再核对文件摘要、评审、验证、缺陷与接受记录。工具使用方法和数据格式见 [工具说明](references/tooling.md)。
+初始化会自动生成包含 `PROJECT-PROFILE.md` 与 `RULEBOOK.md` 的草稿办公室；交付检查同时校验双平面漂移、总控回避（`coordinator_actor`）、只追加 `review_history`、原子 `batches` 与独立缺陷闭环。详见 [工具说明](references/tooling.md)。
 
 ![Reviewed milestone delivery](assets/illustrations/delivery.png)
 
 ## 当前成熟度
 
-v0.1.0 是从持续迭代的真实项目中提炼的首版，包含本地工具测试和独立前向测试，具体范围见 [验证记录](docs/validation.md)。提炼开始时，来源项目的 PM 管理方案仍在评审，产物正式定版工作尚在补齐。长期效果和不同宿主上的运行需要继续积累实证。
-
-宿主负责实际执行、调度、持久化和权限控制。附带检查器验证记录和文件的一致性。成果质量、评审真实性和业务可用性由对应角色结合原始证据判断。
+v0.2.0 吸收了真实多模型软件与数据项目一线跑批的经验教训，针对“反复重封签风暴”“提前草稿签认”“总控越位写代码/跑命令”“账实不符”“配额卡死”与“假绿浅通过”完成了系统重构。验证范围与实测结果见 [验证记录](docs/validation.md)。
 
 ## 参考与贡献
 
-研究参考了 BMAD Method、MetaGPT、Spec Kit、Superpowers、Deep Agents 和 Agent Skills 格式，具体借鉴点与检索日期见 [设计来源](references/design-sources.md)。仓库正文与工具为独立编写。
-
-欢迎用脱敏后的真实案例提交 issue，包括项目背景、期望行为、实际结果和证据。修改可运行
+设计参考了 BMAD Method、MetaGPT、Spec Kit、Superpowers、Deep Agents 与 Agent Skills 规范，演进依据见 [设计来源](references/design-sources.md)。提交改进前请运行：
 
 ```bash
 python -m unittest discover -s tests -v

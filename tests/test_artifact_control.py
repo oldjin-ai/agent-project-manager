@@ -307,5 +307,377 @@ class DeliveryTests(unittest.TestCase):
         self.assertEqual(json.loads(result.stdout)["structural_check"], "fail")
 
 
+class TwoPlaneAndGovernanceTests(unittest.TestCase):
+    def setUp(self):
+        temporary_root = os.environ.get("APM_TEST_TMPDIR")
+        self.temporary = tempfile.TemporaryDirectory(dir=temporary_root)
+        self.addCleanup(self.temporary.cleanup)
+        self.project_root = Path(self.temporary.name) / "repo"
+        self.project_root.mkdir()
+        (self.project_root / "src").mkdir()
+        (self.project_root / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+        (self.project_root / "src" / "__pycache__").mkdir()
+        (self.project_root / "src" / "__pycache__" / "app.cpython-313.pyc").write_bytes(b"\x00\x01")
+        (self.project_root / "src" / "scratch.tmp").write_text("temp", encoding="utf-8")
+        (self.project_root / "collaboration").mkdir()
+        self.office = self.project_root / "collaboration" / "project-office"
+        initializer.initialize(self.office, "Two-plane test")
+        self.registry_path = self.office / "records" / "artifacts.json"
+
+    def record(self, path, content):
+        output = self.office / path
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(content, encoding="utf-8")
+        return {"record": path, "sha256": control.digest(output)}
+
+    def make_scoped_artifact(self, identity="A09", version="v1", scope_paths=None):
+        scopes = scope_paths or ["src"]
+        manifest_path = self.office / "artifacts" / identity / version / "manifest.json"
+        control.seal_scope(
+            manifest_path,
+            self.project_root,
+            scopes,
+            exclude_prefixes=["collaboration/project-office"],
+        )
+        manifest_hash = control.digest(manifest_path)
+        return {
+            "id": identity,
+            "version": version,
+            "state": "accepted",
+            "producer": {"actor": "backend", "session": "build-1"},
+            "scope_paths": scopes,
+            "manifest": manifest_path.relative_to(self.office).as_posix(),
+            "manifest_sha256": manifest_hash,
+            "dependencies": [],
+            "required_reviewers": ["qa"],
+            "reviews": [{
+                "actor": "qa",
+                "session": "qa-1",
+                "verdict": "pass",
+                "manifest_sha256": manifest_hash,
+                **self.record(f"reviews/{identity}-{version}-r1.md", "Pass review"),
+            }],
+            "required_verification": ["behavioral"],
+            "verification": [{
+                "actor": "runner",
+                "kind": "behavioral",
+                "status": "pass",
+                "method": "pytest",
+                "environment": "isolated",
+                "exit_code": 0,
+                "manifest_sha256": manifest_hash,
+                **self.record(f"evidence/{identity}-{version}-test.log", "10 passed"),
+            }],
+            "allowed_approvers": ["sponsor"],
+            "approval": {
+                "actor": "sponsor",
+                "authority_ref": "CHARTER.md",
+                "manifest_sha256": manifest_hash,
+                **self.record(f"records/{identity}-{version}-signoff.md", "Approved"),
+            },
+            "defects": [],
+        }
+
+    def test_initializer_creates_profile_and_rulebook(self):
+        self.assertTrue((self.office / "PROJECT-PROFILE.md").is_file())
+        self.assertTrue((self.office / "RULEBOOK.md").is_file())
+
+    def test_seal_scope_skips_caches_and_zero_reseal_on_governance_writes(self):
+        artifact = self.make_scoped_artifact("A09")
+        manifest_data = json.loads((self.office / artifact["manifest"]).read_text(encoding="utf-8"))
+        self.assertEqual(manifest_data["mode"], "scope")
+        self.assertEqual(list(manifest_data["files"].keys()), ["src/app.py"])
+
+        # Adding review history, archive files, and evidence inside project-office requires ZERO resealing.
+        archive_rec = self.record("reviews/_history/A09-round-01.md", "Historical reject")
+        extra_rec = self.record("reviews/A09-round-07.md", "Pass round 7")
+        artifact["review_history"] = [
+            {"id": "R01", "actor": "qa", "verdict": "reject", "manifest_sha256": "0" * 64, **archive_rec},
+            {"id": "R07", "actor": "qa", "verdict": "pass", "manifest_sha256": artifact["manifest_sha256"], **extra_rec},
+        ]
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "coordinator_actor": "pm-coordinator",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        result = control.check_registry(self.registry_path, project_root=self.project_root)
+        self.assertEqual(result["structural_check"], "pass")
+
+    def test_scope_mode_detects_deliverable_edit_and_unsealed_file(self):
+        artifact = self.make_scoped_artifact("A09")
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+        (self.project_root / "src" / "app.py").write_text("print('mutated')\n", encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "Scoped deliverables differ"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+        (self.project_root / "src" / "app.py").write_text("print('ok')\n", encoding="utf-8")
+        (self.project_root / "src" / "extra.py").write_text("x = 1\n", encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "Scoped deliverables differ"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+    def test_seal_scope_refuses_overwrite_empty_and_self_reference(self):
+        manifest_path = self.office / "artifacts" / "A09" / "v1" / "manifest.json"
+        control.seal_scope(manifest_path, self.project_root, ["src"])
+        with self.assertRaisesRegex(control.InvalidRecord, "Manifest already exists"):
+            control.seal_scope(manifest_path, self.project_root, ["src"])
+
+        with self.assertRaisesRegex(control.InvalidRecord, "Self-referential scope"):
+            control.seal_scope(self.project_root / "src" / "manifest.json", self.project_root, ["src"])
+
+        (self.project_root / "empty_dir").mkdir()
+        with self.assertRaisesRegex(control.InvalidRecord, "must contain a file"):
+            control.seal_scope(
+                self.office / "artifacts" / "EMPTY" / "v1" / "manifest.json",
+                self.project_root,
+                ["empty_dir"],
+            )
+
+    def test_scope_self_reference_rejected_in_check(self):
+        artifact = self.make_scoped_artifact("A09")
+        # Tamper manifest directly inside test to verify check_registry guards against project-office inclusion
+        manifest_file = self.office / artifact["manifest"]
+        bad_manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
+        bad_manifest["files"]["collaboration/project-office/CHARTER.md"] = {"sha256": "0" * 64, "bytes": 1}
+        manifest_file.write_text(json.dumps(bad_manifest), encoding="utf-8")
+        artifact["manifest_sha256"] = control.digest(manifest_file)
+        artifact["reviews"][0]["manifest_sha256"] = artifact["manifest_sha256"]
+        artifact["verification"][0]["manifest_sha256"] = artifact["manifest_sha256"]
+        artifact["approval"]["manifest_sha256"] = artifact["manifest_sha256"]
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "Self-referential scope entry"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+    def test_review_history_detects_missing_or_tampered_round(self):
+        artifact = self.make_scoped_artifact("A09")
+        hist = self.record("reviews/_history/A09-round-01.md", "Historical reject")
+        artifact["review_history"] = [
+            {"id": "R01", "actor": "qa", "verdict": "reject", **hist}
+        ]
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+        (self.office / hist["record"]).write_text("Tampered history", encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "Review history file digest differs"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+    def test_atomic_batches_enforce_all_peers(self):
+        (self.project_root / "fe").mkdir()
+        (self.project_root / "fe" / "index.ts").write_text("export const x = 1;\n", encoding="utf-8")
+        a09 = self.make_scoped_artifact("A09", scope_paths=["src"])
+        a10_draft = {"id": "A10", "version": "v1", "state": "draft"}
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "batches": [{"id": "B-CODE", "artifacts": ["A09@v1", "A10@v1"]}],
+            "artifacts": [a09, a10_draft],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "A10@v1: Artifact state must be accepted"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+        a10 = self.make_scoped_artifact("A10", scope_paths=["fe"])
+        registry["artifacts"] = [a09, a10]
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        result = control.check_registry(self.registry_path, project_root=self.project_root)
+        self.assertEqual(result["checked_artifacts"], ["A09@v1", "A10@v1"])
+
+    def test_duplicate_batch_membership_fails(self):
+        a09 = self.make_scoped_artifact("A09", scope_paths=["src"])
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "batches": [
+                {"id": "B1", "artifacts": ["A09@v1"]},
+                {"id": "B2", "artifacts": ["A09@v1"]},
+            ],
+            "artifacts": [a09],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "belongs to multiple batches"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+    def test_coordinator_actor_cannot_review_or_verify_defects(self):
+        artifact = self.make_scoped_artifact("A09")
+        artifact["required_reviewers"] = ["pm-coordinator"]
+        artifact["reviews"][0]["actor"] = "pm-coordinator"
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "coordinator_actor": "pm-coordinator",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "Coordinator cannot act as independent reviewer"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+        artifact = self.make_scoped_artifact("A09", version="v2")
+        artifact["defects"] = [{
+            "id": "DEF-1",
+            "severity": "major",
+            "status": "closed",
+            "fixer": "backend",
+            "verifier": "pm-coordinator",
+            "manifest_sha256": artifact["manifest_sha256"],
+            **self.record("evidence/retest.log", "pass"),
+        }]
+        registry["milestones"][0]["required_artifacts"] = ["A09@v2"]
+        registry["artifacts"] = [artifact]
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "Coordinator cannot verify defect closure"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+    def test_cli_seal_scope_and_check_project_root(self):
+        manifest_out = self.office / "artifacts" / "A09" / "v1" / "manifest.json"
+        seal_cmd = [
+            sys.executable,
+            str(SCRIPTS / "artifact_control.py"),
+            "seal-scope",
+            str(manifest_out),
+            "--root",
+            str(self.project_root),
+            "--scope",
+            "src",
+            "--exclude-prefix",
+            "collaboration/project-office",
+        ]
+        seal_res = subprocess.run(seal_cmd, capture_output=True, text=True)
+        self.assertEqual(seal_res.returncode, 0, seal_res.stdout + seal_res.stderr)
+        manifest_sha = json.loads(seal_res.stdout)["sha256"]
+
+        artifact = {
+            "id": "A09",
+            "version": "v1",
+            "state": "accepted",
+            "producer": {"actor": "backend", "session": "build-1"},
+            "scope_paths": ["src"],
+            "manifest": manifest_out.relative_to(self.office).as_posix(),
+            "manifest_sha256": manifest_sha,
+            "dependencies": [],
+            "required_reviewers": ["qa"],
+            "reviews": [{
+                "actor": "qa",
+                "session": "qa-1",
+                "verdict": "pass",
+                "manifest_sha256": manifest_sha,
+                **self.record("reviews/A09.md", "Pass"),
+            }],
+            "required_verification": ["behavioral"],
+            "verification": [{
+                "actor": "runner",
+                "kind": "behavioral",
+                "status": "pass",
+                "method": "pytest",
+                "environment": "isolated",
+                "exit_code": 0,
+                "manifest_sha256": manifest_sha,
+                **self.record("evidence/A09.log", "OK"),
+            }],
+            "allowed_approvers": ["sponsor"],
+            "approval": {
+                "actor": "sponsor",
+                "authority_ref": "CHARTER.md",
+                "manifest_sha256": manifest_sha,
+                **self.record("records/A09-signoff.md", "Approved"),
+            },
+            "defects": [],
+        }
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+
+        check_cmd = [
+            sys.executable,
+            str(SCRIPTS / "artifact_control.py"),
+            "check",
+            str(self.registry_path),
+            "--project-root",
+            str(self.project_root),
+        ]
+        check_res = subprocess.run(check_cmd, capture_output=True, text=True)
+        self.assertEqual(check_res.returncode, 0, check_res.stdout + check_res.stderr)
+        self.assertEqual(json.loads(check_res.stdout)["structural_check"], "pass")
+
+    def test_seal_scope_rejects_symlink_or_reparse_root(self):
+        manifest_out = self.office / "artifacts" / "A09" / "v1" / "manifest.json"
+        with patch.object(Path, "is_symlink", return_value=True):
+            with self.assertRaisesRegex(control.InvalidRecord, "Linked/reparse path"):
+                control.seal_scope(manifest_out, self.project_root, ["src"])
+
+    def test_review_history_missing_file_and_scope_mismatch(self):
+        artifact = self.make_scoped_artifact("A09")
+        hist = self.record("reviews/_history/A09-round-01.md", "Historical reject")
+        artifact["review_history"] = [
+            {"id": "R01", "actor": "qa", "verdict": "reject", **hist}
+        ]
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [{"id": "M1", "required_artifacts": ["A09@v1"]}],
+            "artifacts": [artifact],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        (self.office / hist["record"]).unlink()
+        with self.assertRaisesRegex(control.InvalidRecord, "Review history file is missing"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+        artifact["review_history"] = []
+        artifact["scope_paths"] = ["other"]
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        with self.assertRaisesRegex(control.InvalidRecord, "scope_paths differs"):
+            control.check_registry(self.registry_path, project_root=self.project_root)
+
+    def test_batches_are_scoped_to_selected_milestone(self):
+        (self.project_root / "fe").mkdir()
+        (self.project_root / "fe" / "index.ts").write_text("export const x = 1;\n", encoding="utf-8")
+        a01 = self.make_scoped_artifact("A01", scope_paths=["src"])
+        a09 = self.make_scoped_artifact("A09", scope_paths=["fe"])
+        a10_draft = {"id": "A10", "version": "v1", "state": "draft"}
+        registry = {
+            "schema_version": 1,
+            "project": "Two-plane test",
+            "milestones": [
+                {"id": "M1", "required_artifacts": ["A01@v1"]},
+                {"id": "M2", "required_artifacts": ["A09@v1"]},
+            ],
+            "batches": [{"id": "B-CODE", "artifacts": ["A09@v1", "A10@v1"]}],
+            "artifacts": [a01, a09, a10_draft],
+        }
+        self.registry_path.write_text(json.dumps(registry), encoding="utf-8")
+        self.assertEqual(
+            control.check_registry(self.registry_path, "M1", project_root=self.project_root)["checked_artifacts"],
+            ["A01@v1"],
+        )
+        with self.assertRaisesRegex(control.InvalidRecord, "A10@v1: Artifact state must be accepted"):
+            control.check_registry(self.registry_path, "M2", project_root=self.project_root)
+
+
 if __name__ == "__main__":
     unittest.main()

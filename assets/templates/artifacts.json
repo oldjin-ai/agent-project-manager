@@ -1,6 +1,8 @@
 {
   "schema_version": 1,
   "project": "{{PROJECT_NAME}}",
+  "coordinator_actor": "pm-coordinator",
   "milestones": [],
+  "batches": [],
   "artifacts": []
 }

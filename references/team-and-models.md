@@ -1,41 +1,45 @@
 # Team formation and model evaluation
 
-## Start with capabilities and available seats
+## Start with capabilities and runtime seats
 
-Map the deliverables to required work such as product judgment, architecture, domain research, implementation, numerical reasoning, visual inspection, verification, operations, and coordination. Add specialists where their contribution addresses a real project need. A role is a responsibility with outputs and decision boundaries. The team can combine responsibilities according to capacity and risk.
+Map deliverables to required capabilities: product/domain judgment, architecture, domain research, implementation, verification/QA, operations, and coordination. Combine roles on small or `Light`/`Standard` projects while preserving independent review for critical outputs.
 
-Inventory the host's actual callable agents and tools. Record model identifiers exactly as exposed by the provider or harness. Record the ability to choose models, reasoning settings, tool permissions, session isolation, concurrent seats, quota, and manual handoff channels. Verify availability using a bounded probe where authorized. Keep provider claims and observed availability in separate fields.
+Inventory the host's actual callable agents, subagent providers, CLI wrappers, and tools **at runtime** (e.g., via `list_subagent_models` or equivalent host discovery). Record:
 
-When the host hides model identity or settings, record the exposed session/channel and mark the hidden fields `unavailable from host`. Preserve that uncertainty until metadata becomes observable. The available session can still complete authorized preparatory work.
+- Exact provider and model identifiers as exposed by the harness
+- Exact parameter schema required per tool (`provider` + `model` split vs. combined `"provider/model"`, `reasoning_effort` vs. `reasoningEffort`, or flags that must be omitted)
+- Reasoning settings, sandbox restrictions, concurrency limits, and quota rules
+- Verified availability date and tested probe status
 
-## Research current strengths
+If the host hides model metadata, record the exposed channel and mark hidden fields `unavailable from host`. Never invent provider names or guess CLI model slugs.
 
-Search official model documentation, model cards, release notes, and primary evaluation reports for the candidate models that are actually available. Record source URL, retrieval date, model/version, task relevance, methodology, and uncertainty. Inspect recent relevant primary evaluations where they add evidence. Vendor self-reports and benchmark aggregates require task-level judgment.
+## Research and bounded probing
 
-Use `assets/templates/model-evaluation.md`. Evaluate dimensions relevant to the role.
+Use `assets/templates/model-evaluation.md`. Consult official model documentation, release notes, and relevant evaluations for available candidates, then run a short representative probe from the real project domain when authorized:
 
-| Role | Candidate evidence |
+| Role | What to verify |
 | --- | --- |
-| PM | Dependency reasoning, long-context instruction fidelity, uncertainty reporting, recovery planning |
-| Product/domain | Requirement ambiguity, domain source fidelity, usable acceptance criteria |
-| Architect | Tradeoffs, interface consistency, failure analysis, implementation feasibility |
-| Builder | Repository-specific implementation, tool reliability, regression handling |
-| QA/reviewer | Detecting a seeded defect, requirement coverage, independent reproduction |
-| Operations | Deployment/recovery reasoning, environment diagnosis, permission awareness |
-| Design | Visual judgment, accessibility, interaction completeness in the required modality |
+| PM coordinator | Dependency ordering, strict tool-schema adherence, no-shell discipline, recovery planning |
+| Product / domain | Ambiguity detection, source fidelity, real-user path & UX judgment |
+| Architect | Interface consistency, failure/recovery design, concise technical rulings |
+| Builder | Repository edits within write scope, self-check execution, regression discipline |
+| QA / reviewer | Detecting seeded defects, requirement traceability, independent reproduction |
+| Operations | Packaging, environment/path hygiene, rollback & smoke verification |
 
-Choose a short representative probe from the real project's domain. Give candidates comparable inputs and predeclared evaluation criteria. Save the prompt, input digest, exact settings, output, evaluator, observed defects, elapsed time, and reported usage when available. Protect production state and use authorized resources. Keep the probe bounded to the budget agreed for team formation.
+Save the probe prompt, settings, raw result, observed defects, and elapsed duration inside the office or ignored scratch storage. Reassess assignments at milestone boundaries or after repeated role-specific failures.
 
-If paid calls, tools, or model switching are unavailable, complete a documentation-backed provisional assignment with explicit uncertainty. Reassess after the first real task. Public documentation alone supports a hypothesis about fit.
+## Tiered reviewer routing and quota resilience
 
-## Assign and maintain
+Treat high-rigor and scarce reviewers as constrained capacity rather than running heavy multi-seat reviews on every minor change:
 
-Record the chosen model/harness for each role, the observed reasons, limitations, constraints, and qualified fallback order. Include the PM in this evaluation. Use empirical task results to revise the assignments at milestone boundaries or after repeated role-specific failures. A fallback needs the capabilities and permissions required for that role.
+- **Final & high-risk gates**: Reserve the strongest independent QA / domain seats for milestone-final verification, data/release pointer changes, security/auth changes, and deployment acceptance.
+- **Routine tasks & defect retests**: Route routine defect closures and non-A-level code changes to **mechanical gate evidence + an independent non-author reviewer** (an uninvolved peer builder or architect), keeping `reviewer != producer` and `verifier != fixer`.
+- **Fallback rule on quota exhaustion (`429`) or provider outage**:
+  1. Inspect the stated reset window and preserve the exact error.
+  2. Switch only to a **pre-qualified authorized fallback** of comparable rigor recorded in `PROJECT-PROFILE.md` / `TEAM.md`.
+  3. **Never spoof a required reviewer seat** by disguising another model under that seat's identity, and **never let the PM self-verify or self-sign** to clear a blocked queue.
+  4. When no qualified fallback is available, freeze only the blocked acceptance queue, log the block, and keep unrelated ready work moving.
 
-For 429, authentication failures, missing tools, or unavailable reasoning settings, record the exact failure and affected work. Probe a qualified alternative once when authorized, then update the assignment and dispatch record. Reconcile unfinished calls before replacement. Keep review criteria and reviewer independence across replacements.
+## Anti-ledger-drift rule
 
-A review session receives the requirement, exact artifact, relevant raw inputs, and its role skill. Record the producer and reviewer execution identities. Multiple model vendors can diversify failure modes when available. Assess independence from the actual session and evidence handling.
-
-## Execution channels
-
-Use native subagents, a connected orchestrator, or a complete manual handoff prompt according to available authorization and host capabilities. Dispatch through one canonical channel. Supply role instructions explicitly if the host cannot discover project-local skills. Save acknowledgement or run ID and result location. If only one execution session is available, label self-checks accurately and arrange an independent review channel for gates that require it.
+Bind the assigned `model` and reasoning level at task creation and subagent dispatch. If a subagent runs under a fallback or different actual model than planned, record the **true executing model and identity** in the completion receipt and board ledger (`record-external-outcome`). Never call an update tool during or after execution to retroactively rewrite a card's `model` field to cover up a mismatch.

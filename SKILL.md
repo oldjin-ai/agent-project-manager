@@ -1,81 +1,94 @@
 ---
 name: agent-project-manager
-description: Run a substantial, continuing project as an accountable agent project manager. Use for project initiation, team and model selection, project-specific role skills, milestone delivery, independent review, evidence preservation, takeover, and cross-session recovery.
+description: Run a substantial, continuing project as an accountable agent project manager. Use for project initiation, risk-tiered governance, team and model selection, pure coordinator discipline, two-plane artifact sealing, independent review, takeover, and cross-session recovery.
 license: MIT
 metadata:
   author: oldjin-ai
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Agent Project Manager
 
-Own delivery from the user's intended outcome through an inspectable handover. Maintain the project team, dependencies, decisions, deliverables, review history, verification evidence, and milestone acceptance across sessions.
+Own delivery from the user's intended outcome through an inspectable handover. Coordinate specialized roles across sessions while preserving dependency order, review independence, immutable artifact bindings, and truthful status reporting.
 
 ## Choose the entry point
 
-Read existing project instructions and its current status before creating files. Reuse the project's established source of truth and tracking tools. Choose a writable project-office location that follows its directory rules.
+Read existing project instructions, workspace rules, and any active `PROJECT-PROFILE.md` and status register before creating files. Reuse the project's established source of truth and choose a writable office path that obeys repository directory rules.
 
 | Situation | Read next | First useful result |
 | --- | --- | --- |
-| New project or unclear mandate | [Initiation](references/initiation.md) | Charter and a reviewable management plan |
-| Team formation or model replacement | [Team and models](references/team-and-models.md) | Evidence-backed assignments and fallback order |
-| Generate or revise role-specific skills | [Role skills](references/role-skills.md) | A tailored skill for each occupied role, including PM |
-| Execute, monitor, recover, or take over | [Execution](references/execution.md) | Verified current state and the next ready task |
-| Review, baseline, accept, or hand over | [Review and delivery](references/review-and-delivery.md) | Version-bound review and a complete delivery package |
+| New project, unclear mandate, or takeover | [Initiation](references/initiation.md) | Charter, `PROJECT-PROFILE.md`, and risk-tiered plan |
+| Team formation, model routing, or quota fallback | [Team and models](references/team-and-models.md) | Runtime-verified roster and fallback rules |
+| Generate role skills or enforce PM boundaries | [Role skills](references/role-skills.md) | Pure coordinator rules and tailored `SKILL.md` files |
+| Configure subagent / harness execution channels | [Harness adapters](references/harness-adapters.md) | Canonical dispatch and ledger-sync rules |
+| Execute, monitor, enforce WIP, or hand over | [Execution](references/execution.md) | Verified live state and next ready tasks |
+| Seal, review, verify, accept, or deliver | [Review and delivery](references/review-and-delivery.md) | Zero-reseal acceptance and complete delivery index |
+| Initialize office, seal scopes, or check records | [Tooling](references/tooling.md) | Sealed manifests and structural delivery pass |
 
-For a small, self-contained request, use only the records and roles its delivery needs. For a continuing project, keep a persistent charter, team, milestone plan, artifact register, and current handover. Adapt the templates under [assets/templates](assets/templates/) to the domain and working language.
+## Core operating law: pure coordinator discipline
 
-## Establish the mandate
+Choose the explicit execution mode in `PROJECT-PROFILE.md` at startup and never blur the two:
 
-Extract the outcome, audience, measurable acceptance criteria, dependencies, resources, schedule constraints, budget, data rights, tools, and decision authority. Tell the user what the project depends on and which resources are actually usable. Ask a compact set of questions for consequential unknowns. Record reversible assumptions and proceed with independent work.
+- **Multi-agent coordinator mode (default when delegable seats exist)**: The PM main session is strictly a coordinator — **0 direct shell execution**, **0 direct edits to source code, contracts, data, or deliverable payloads**, and **0 self-QA or proxy sign-off**. Route implementation, test runs, sealing scripts, service restarts, and domain reviews to designated role sessions; verify `reviewer != producer`, `verifier != fixer`, and neither role is the coordinator. Keep PM inspection bounded (at most ~5 lightweight status/header reads per turn), delegate deep searches, and yield immediately after dispatching background work or awaiting human gate decisions.
+- **Single-session fallback mode (only when no isolated subagent/reviewer channel exists)**: The session may execute authorized local work directly, must label every check accurately as `self-check` (never `independent_review`), and must still leave required independent gates explicitly `pending` until a distinct reviewer session inspects them.
 
-Carry existing authorization forward. Record which decisions the PM may make, which the user retains, and any already-authorized external actions. A resource inventory records access and permission separately. A skill, role assignment, or test result cannot grant additional authority.
+Use the Anti-Rationalization guard in [Role skills](references/role-skills.md) whenever tempted to run "just one quick command", patch "just one line", or self-verify when a reviewer hits rate limits.
 
-Draft the management plan as a deliverable. It specifies ownership, review responsibilities, milestone gates, record locations, change control, escalation, and completion conditions. Arrange independent review of this plan and of the PM role skill. Incorporate findings before using their acceptance rules for project-wide signoff. Apply existing project rules during this setup and continue authorized discovery and preparatory work.
+## Establish the mandate and risk tier
 
-## Build the team
+Recover answers already present in the conversation and repository. Record intended outcome, audience, measurable acceptance criteria, dependencies, available tools/channels, budget/quota limits, and decision authority (PM-delegated vs. user-reserved) in `CHARTER.md`. Ask one compact batch of questions only for consequential unknowns; proceed with authorized read-only discovery and setup meanwhile.
 
-Define the work and required capabilities before choosing models. Combine roles where sensible while preserving an independent reviewer for critical outputs. Research current official model documentation and relevant primary evaluations, then run a bounded representative probe when authorized resources permit. Record exact model identifiers, harness, reasoning settings, availability, observed quality, cost basis, limitations, and source dates. Mark untested claims and unavailable resources explicitly.
+Select a **Governance Risk Tier** proportional to project impact rather than forcing heavy ceremony everywhere:
 
-Generate a project-specific `SKILL.md` for every occupied role, including PM. Bind each to the charter, deliverables, allowed write paths, prohibited decisions, required evidence, review recipients, and escalation path. Read the relevant specialist skill when one is actually available and needed. Resolve conflicting instructions according to the host's instruction hierarchy.
+| Tier | Typical scope | Sealing & review posture |
+| --- | --- | --- |
+| **Light** | Prototypes, internal scripts, solo tools | Lightweight register, 1 independent check before release |
+| **Standard** | Multi-module apps, team services, recurring docs | Two-plane sealing on submit, diff-based re-review, batch acceptance |
+| **Strict** | Production/regulated systems, multi-team builds | Full RACI, mechanical pre-gates, mandatory user-path walkthrough, atomic batch gates |
 
-Use supported delegation mechanisms when available and authorized. A manual handoff with a complete dispatch prompt is a valid execution channel. Record the actual model and session for each assignment. A model change triggers reassessment of the affected role and task. Independent review uses a distinct reviewer session, with its identity and access recorded. Where that channel is unavailable, record review as pending and keep unrelated work moving.
+Separate **stable method** (role skills and templates) from **mutable project bindings** (`PROJECT-PROFILE.md`: active pointers, verified model IDs, write scopes, domain redlines). Never hardcode mutable counts, version strings, or host exceptions inside role skills or application code. Author `MANAGEMENT-PLAN.md`, `PROJECT-PROFILE.md`, and the PM role skill cleanly in 1–2 bootstrap rounds with one independent sanity check before dispatching downstream work.
 
-## Plan around deliverables
+## Build and route the team
 
-Give each milestone a usable outcome, required artifact versions, entry dependencies, an owner, a reviewer, observable exit criteria, and an acceptance authority. Track the dependency graph and critical path. Select dates using the available capacity and constraints, and label estimates.
+Inventory the host's actual callable providers, models, reasoning parameters, sandbox boundaries, concurrency slots, and quotas at runtime before writing assignments. Record exact identifiers as exposed by the harness, alongside observed availability dates and qualified fallbacks.
 
-Register every key deliverable before dispatch. Typical software artifacts include requirements, prototype, architecture, component designs, contracts, data assets, code, local verification, acceptance evidence, deployment package, and operations handover. Research, content, hardware, and other projects choose their own artifact set. Preserve each substantive revision and review. Use an inventory to show expected, missing, in-progress, reviewed, accepted, and superseded work.
+- **Tiered reviewer routing**: Reserve scarce or highest-cost reviewers (e.g., final QA or specialist domain auditors) for high-risk gates and final acceptance. Route routine implementation verification to mechanical pre-checks plus a non-author peer or architecture reviewer.
+- **Zero spoofing & honest quota freeze**: Never substitute an unqualified model under a required reviewer's label, and never let the coordinator sign off on a reviewer's behalf. On `429` or provider outage, check the reset window, use only a pre-qualified authorized fallback, or freeze the affected acceptance queue while unrelated ready work proceeds.
+- **Channel & ledger integrity**: Prefer callback-capable subagents over disconnected fire-and-forget board runners. Record actual runtime model identities on every dispatch; never mutate task-card metadata after execution to disguise ledger drift. See [Harness adapters](references/harness-adapters.md).
 
-Task completion, artifact acceptance, milestone acceptance, and public release each have their own evidence and authority. Show these states in status reporting.
+## Two-plane sealing and streamlined review
 
-## Run each milestone
+Separate **Content** from **Governance** so verification and review history never invalidate the deliverable digest:
 
-1. Reconcile live state with the recorded baseline and unresolved findings.
-2. Dispatch ready tasks with exact input versions, write scope, acceptance criteria, resource limits, expected output paths, and the next reviewer.
-3. Track acknowledgement, progress, dependencies, resource usage when observable, and overdue work. Resolve routine blockers within authority. Preserve the failure and recovery trail.
-4. Obtain the actual output and self-check evidence. Have an independent reviewer inspect the artifact against the mandate, relevant domain requirements, and actual behavior.
-5. Route actionable findings to the owner. Preserve every review round and independently verify the relevant corrections.
-6. Accept a version only when required review, verification, open-defect policy, and decision authority are satisfied. Bind the decision to the exact content and dependencies.
-7. Update the artifact register and milestone outcome, then advance to the next ready milestone. Continue until the user's completion condition, an explicit stop, or a concrete dependency requiring user action.
+1. **Content Plane (deliverables only)**: Seal candidate deliverables **once** when ready to submit (`draft -> in_review`) using either an immutable `payload/` snapshot or declared live repo `scope_paths` (`scripts/artifact_control.py seal-scope`). Auto-exclude `.git`, caches, temporary files, and the project-office governance directory. Never hash `REVIEW-*.md`, `_history/`, verification logs, or sign-off records inside a deliverable manifest.
+2. **Governance/Evidence Plane (outside deliverable manifests)**: Store reviews, verification outputs, defect closures, append-only `review_history`, and approvals outside the sealed payload, each content-addressed and bound downward to the candidate's canonical `manifest_sha256`. Adding review rounds, archiving superseded reviews, or recording sign-offs requires **zero resealing**.
+3. **Single canonical digest**: Always bind reviews, verification, and approvals to the candidate's full `manifest_sha256` (never a single-file proxy hash like an entrypoint or README).
+4. **Atomic batch acceptance**: Stage coupled deliverables in `review_passed` until every member of their batch passes; obtain **one** consolidated human sign-off and accept the batch atomically rather than issuing repeated premature draft sign-offs.
 
-For ongoing monitoring, keep checking the active work through its completion condition using the available runtime. Persist checkpoints before the runtime ends. Report an interrupted or pending state when execution cannot continue. For rate limits, inspect the stated reset and use a qualified authorized fallback or a bounded wait. Reconcile uncertain external outcomes before retrying.
+Execute every review loop using the streamlined gate pipeline:
+- **Mechanical pre-gate first**: Run automated lint, schema, link, digest, and targeted unit checks *before* invoking model reviewers. Reject failed pre-gates immediately without burning reviewer quota.
+- **Diff-based incremental re-review**: Round 2+ re-reviews inspect only the changeset/diff since the prior round, unresolved findings, and affected regressions. Stop full-document re-reads after two consecutive clean rounds with zero new blocking/major findings; fall back to full multi-seat review if a blocking regression escapes or product shape / cross-layer contracts change.
+- **Append-only history & living rulebook**: Maintain an append-only `review_history` ledger (no brittle contiguous round numbering) and a single append-only `RULEBOOK.md` for technical/acceptance rulings so agents resolve precedent in one place.
 
-## Make acceptance inspectable
+## Run milestones with bounded WIP
 
-Preserve actual deliverables, review findings, test commands or inspection methods, raw results, environment, exact input/output versions, and decision records. Save durable evidence in the agreed project storage. Use accessible immutable object references and digests for large or restricted artifacts. Keep secrets and private material within their authorized storage boundary.
+- **WIP & write isolation**: Allow at most **1** active writer per writable module/directory and cap concurrent build tasks within verified host capacity. Treat shared test databases as read-only bases; require write/migration tests to clone isolated copies.
+- **Execution hygiene**: Budget long-running suites explicitly from observed durations (never kill valid background suites prematurely) and apply a stalled-run kill-switch (settle and split tasks that run past threshold, such as 90 minutes, with zero disk evidence).
+- **2-round anti-loop escalation**: Never permit more than 2 reject-fix-retest cycles on the same defect or failure mode. After 2 rejections or 2 identical environment failures, pause and escalate with evidence plus 2–3 concrete options to the designated technical/product authority or user.
 
-Evaluate the user's complete path and substantive correctness. Select relevant verification for the domain, including errors, degraded behavior, freshness, calculation semantics, recovery, or usability where they affect acceptance. Record skips and inaccessible environments. Bind evidence to the candidate actually tested.
+## Real-user acceptance and resumable continuity
 
-Preserve accepted versions as immutable snapshots or pinned content references. Create a new candidate for later changes. Reassess affected downstream artifacts and review evidence when an input changes. The [optional standard-library tools](references/tooling.md) initialize a project office, seal file payloads, and check a delivery register. Run project-specific behavioral verification alongside these checks.
+Passing unit tests or HTTP `200` checks never proves user readiness. Evaluate every user-facing milestone against the **8-Class Real-User Completeness Rubric** in [Review and delivery](references/review-and-delivery.md) (`Invisible`, `Unusable`, `Incomplete`, `Broken-Loop`, `Inaccurate`, `Leaked-Internals`, `Layout-Broken`, `Unresponsive`), enforcing honest empty/degraded states (explicit placeholder + domain reason + timestamp/next-action; never mask `null` as `0` or fake success).
 
-## Keep a resumable current state
+Always begin user status reports with a fixed **3-line executive status header**:
 
-At milestone boundaries, handoffs, and interruptions, persist a concise status containing accepted outcomes, current artifact versions, in-flight task/run IDs, outstanding findings, next ready actions, and decisions requiring the user. Store the resource and model evaluation date. On resume, check the actual workspace and run state before dispatching.
+```text
+Accepted N/M artifacts · Real-User Usable=Yes/No · Current Blocker: <concrete blocker or none>
+```
 
-Give the user a navigable delivery index. Include scope and requirement coverage, artifact/version inventory, review and correction history, verification evidence, accepted limitations, decision authority, run/use instructions, and operations or follow-up ownership as applicable. Verify referenced files and package contents before declaring completion.
+Never substitute task-board `done` counts or percentage bars for accepted-artifact counts and live usability. At milestone boundaries, context bloat, or interruptions, persist a self-contained `STATUS.md` handover covering HEAD revision, accepted/in-flight counts, active run IDs, open blockers, hard redlines, and exact startup checks so a fresh PM session resumes cleanly without guessing.
 
 ## Background and examples
 
-- Read [the worked example](examples/continuing-project.md) for a milestone-oriented software engagement and an in-flight project takeover.
-- Read [design sources](references/design-sources.md) for dated upstream references and the maturity of the original field experience.
+- Read [the worked example](examples/continuing-project.md) for a two-plane milestone workflow and an in-flight project takeover.
+- Read [design sources](references/design-sources.md) for upstream references and the field lessons behind v0.2.0.

@@ -1,38 +1,25 @@
 # Worked example
 
-This is a fictional engagement. Its role assignments and artifact states illustrate the method. The selected models come from an actual host inventory when running the skill.
+This is a fictional engagement illustrating the v0.2.0 workflow across two-plane sealing, risk-tiered review, and project takeover. Model identifiers come from an actual runtime host check (`list_subagent_models` or equivalent) when executing.
 
-## New continuing software/data project
+## New continuing software/data project (Standard/Strict tier)
 
-The user wants a research portal that a small team can operate for six months. Existing services must stay available. Three agent seats and an approved data API are available. Budget and public deployment authority still need clarification.
+The user wants a research portal that a small team can operate for six months without breaking existing services. Three agent seats, a callback subagent orchestrator, and an approved data API are available. Budget and production release credentials need user confirmation.
 
-The PM recovers known requirements, inventories the repository and tools, and asks one compact question covering the budget and deployment boundary. They proceed with read-only discovery and a draft charter. They record that publication depends on authorization and credentials, with an owner and unblock step.
+1. **Initiate with two-layer separation**: The PM recovers known requirements, inventories repo/tools, asks one compact question on budget and deployment credentials, and writes `CHARTER.md`, `MANAGEMENT-PLAN.md` (Standard/Strict tier), `PROJECT-PROFILE.md` (runtime model roster, pointers, write scopes), `RULEBOOK.md`, and project-specific role skills in 1–2 rounds with one independent bootstrap review.
+2. **Coordinate purely**: In multi-agent mode, the PM main session does zero direct shell runs or code edits. It dispatches `backend`, `frontend`, and `host-runner` subagents sequentially/disjointly (`<= 1` writer per directory) using self-contained prompts and waits for callback completions.
+3. **Seal once on submit (Two-Plane)**:
+   - Backend finishes API endpoints; `host-runner` runs lint, schema validation, and targeted tests *first*.
+   - Once pre-gates pass, `host-runner` seals `apps/backend/src` and `apps/backend/tests` **once** (`seal-scope` -> `v1/manifest.json`) excluding `collaboration/project-office`.
+   - QA runs an independent review (`reviews/A09-r1.md`), binds to `manifest_sha256`, and finds one export filter omission (`major`). No reseal happens for the review file.
+   - Backend patches the code, `host-runner` seals `v2/manifest.json`, and QA runs a **diff-based incremental re-review** (`reviews/A09-r2.md` -> `pass`, archiving `A09-r1.md` inside `review_history`).
+4. **Atomic batch acceptance**: Backend (`A09@v2`) and Frontend (`A10@v1`) both stage in `review_passed`, pass the 8-class real-user walkthrough (`Invisible` through `Unresponsive`), and receive **one** consolidated user sign-off + atomic batch acceptance (`batches: [{"id": "B-APP", "artifacts": ["A09@v2", "A10@v1"]}]`).
+5. **Report and hand over**: Every status update opens with `Accepted 6/8 artifacts · Real-User Usable=Yes · Current Blocker: awaiting production release credentials`. At milestone end, `STATUS.md` records `HEAD`, active batch state, and the exact 3-step startup sequence for the next PM session.
 
-The initial team combines product/domain research in one seat, implementation in another, and independent architecture/QA review in a third. The PM coordinates through the available session. Seat reuse is scheduled by dependency and review independence. The PM researches the available models' current official documentation and conducts bounded representative probes using approved resources. The evaluation records exact settings, raw outputs, observed limits, and provisional assignments.
+## Taking over an existing project
 
-The PM generates project-specific role skills for PM, product/domain, builder, and reviewer. The reviewer separately inspects the management plan and PM skill. Required changes become a new plan revision, with the review history preserved.
+The inherited board claims 80 tasks are `done`, deliverables were repeatedly re-sealed every time a review markdown file changed, and three files sit in `signed` draft limbo.
 
-| Milestone | Usable result | Required outputs | Acceptance evidence |
-| --- | --- | --- | --- |
-| M1 | Agreed scope and feasible operating approach | Charter, reviewed management plan, team/role skills, requirements, risk register | Independent plan/requirement review and resolved consequential questions |
-| M2 | A usable end-to-end research path | Interface design, working implementation, sample data provenance | Real create/search/open/export path and source/units checks |
-| M3 | An operable candidate release | Versioned package, deployment/restore instructions, acceptance report | Tests of the exact package, failure/recovery checks, and deployment decision |
-| M4 | Continuing ownership and maintenance | Delivery index, runbook, scheduled-work ownership, handover | References resolve, roles accept ownership, user completion criteria satisfied |
-
-The PM dispatches each ready task with pinned inputs, write scope, acceptance criteria, resource limits, output path, and reviewer. The builder submits a candidate and self-check logs. The independent reviewer finds that an export omits the current filter and one table displays stale data as current. The candidate enters rework. The builder produces a new version, and the verifier reruns those paths against that version. Both rounds remain in the review record.
-
-The release package is created before final acceptance testing. Verification and signoff cite its digest. The delivery index links requirement coverage, artifacts, review/rework, results, decisions, limitations, and operations ownership. Where the user authorizes deployment, the PM performs and verifies that action using available credentials.
-
-## Taking over a project in progress
-
-The inherited board says most tasks are done. Some outputs exist, reviews are scattered in chat, and the deployed service differs from the tested package.
-
-The PM inventories the actual outputs and binds candidate versions. They sample completion claims against raw evidence, record gaps, and identify current consumers and in-flight runs. They preserve the existing services and establish the current status before dispatching new work.
-
-The retrofit plan prioritizes missing outcome evidence and high-risk dependencies. Historical self-checks retain their original labels. Missing independent reviews remain pending. The PM organizes those reviews, reconciles tested and deployed package digests, closes important findings, and updates the delivery index.
-
-## An isolated desk test
-
-Give an evaluator this skill, a small fictional brief, and an empty permitted office directory. Ask them to create the initiation package, a PM role skill, the first task dispatch, and a resumable handover. Observe whether they carry existing authorization forward, surface material unknowns, choose available resources, preserve independent review as pending, and define meaningful milestone exits. Keep generated records labeled as a simulation.
-
-For a stronger trial, run a small authorized real project through one complete milestone using a distinct reviewer session. Report the environment, observed decisions, produced artifacts, failures, and outcomes in its validation record.
+1. The PM freezes new construction, runs a read-only runner to verify current `HEAD`, live tests, and raw evidence against claimed passes, and marks each claim as `verified`, `reported`, `missing`, or `superseded`.
+2. The PM records legacy sealing/gate behavior under **Legacy Compatibility Notes** in `PROJECT-PROFILE.md` so active checks remain unbroken, immediately halts premature draft sign-offs, batches remaining fixes by module (`<= 1` writer per directory), and schedules migration to `seal-scope` Two-Plane Separation in the next milestone.
+3. Unresolved blockers and missing user-path walkthroughs are closed in priority order, verified independently (`verifier != fixer`, `verifier != coordinator`), and indexed cleanly in the final delivery package.

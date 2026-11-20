@@ -4,30 +4,30 @@
 
 [简体中文](README.zh-CN.md) · [Skill instructions](SKILL.md) · [Worked example](examples/continuing-project.md)
 
-An open-source skill for running substantial, continuing projects with an accountable agent PM, a purpose-built team, and reviewed milestone deliverables.
+An open-source skill (`v0.2.0`) for running substantial, continuing projects with an accountable pure-coordinator PM, a purpose-built agent team, zero-reseal artifact control, and reviewed milestone delivery.
 
-The PM clarifies the mandate, evaluates available models, writes project-specific role skills, coordinates execution, preserves outputs and review history, and assembles a traceable delivery package. Project records support handover across sessions and changes in the team.
+The PM establishes the mandate and risk tier, verifies callable models at runtime, keeps mutable bindings in `PROJECT-PROFILE.md`, generates project-specific role skills, coordinates bounded parallel execution without self-QA, and delivers an inspectable handover package across sessions.
 
-## What it covers
+## What is new in v0.2.0
 
-- Project initiation with dependencies, resources, budget, authority, and measurable acceptance.
-- Current model research and bounded project-relevant evaluation, including the PM assignment.
-- A tailored `SKILL.md` for each occupied role and independent review of the PM's management plan.
-- Milestone dependencies, task dispatch, monitoring, recovery, and in-flight project takeover.
-- Version-bound artifacts, independent review, correction verification, acceptance, and final handover.
-- Optional Python standard-library tools for scaffolding, payload sealing, and structural delivery checks.
+- **Two-plane sealing (`seal-scope` + external governance)**: Deliverable payloads/scopes never hash reviews, archived rounds, or sign-offs. Adding reviews or approvals requires **zero resealing**.
+- **Pure coordinator iron law**: Multi-agent PM sessions enforce zero direct shell execution, zero direct edits to deliverables, zero self-QA, bounded inspection reads, and callback-first dispatching.
+- **Risk-tiered governance (`Light` / `Standard` / `Strict`)**: Proportional process rigor with 1–2 round bootstrap checks, single append-only `RULEBOOK.md`, and `PROJECT-PROFILE.md` separation.
+- **Atomic batch acceptance & seal-once-on-submit**: Coupled deliverables stage in `review_passed` and receive one consolidated sign-off + atomic batch acceptance, ending repeated premature draft sign-offs.
+- **Streamlined review & quota resilience**: Mechanical pre-gates before spending model tokens, diff-based incremental re-reviews, tiered reviewer routing, `429` queue freezes without seat spoofing, and 2-round anti-loop escalation.
+- **Real-user substantive bar & harness adapters**: 8-class real-user completeness rubric (`Invisible` through `Unresponsive`), fixed 3-line executive status header, and cross-host runtime adapter guidance.
 
 ## Install
 
-Clone the repository into a skill directory supported by your host. Choose an unused destination. For a Codex installation that uses `~/.codex/skills`, an example is
+Clone the repository into a skill directory supported by your host. Choose an unused destination. For Codex (`~/.codex/skills`), run:
 
 ```bash
 git clone https://github.com/oldjin-ai/agent-project-manager.git ~/.codex/skills/agent-project-manager
 ```
 
-For another Agent Skills host, place this directory in its configured skill location. If automatic discovery is unavailable, give the agent the path to `SKILL.md` and ask it to follow the skill. Confirm local host conventions before choosing a project-level skill path.
+For DeepSeek Harness (`~/.dsh/skills`) or any other Agent Skills host, place a real copy of this directory (never a symlink or junction) in its configured skill location, or pass the path to `SKILL.md` explicitly.
 
-The instruction layer uses Markdown and YAML. The optional tools require Python 3.10+ and have no third-party dependencies. The environment supplies file access, an execution/delegation channel, and any authorized research tools. Model availability and execution permissions come from your host.
+The instruction layer uses Markdown and YAML. The optional tools require Python 3.10+ using the standard library only. Model availability, callback delegation, and execution permissions come from your host.
 
 ## Use
 
@@ -36,50 +36,50 @@ Use $agent-project-manager to run this project through milestone delivery.
 Outcome: a research portal that our team can operate for the next six months.
 Available resources: this repository, three agent seats, and the approved data API.
 Constraints: preserve existing services and stay within the stated budget.
-Start with the project charter, resource/model assessment, team role skills,
-and a management plan that receives independent review. Continue within my
+Start with the project charter, PROJECT-PROFILE.md, runtime model inventory,
+team role skills, and a risk-tiered management plan. Continue within my
 authorization and ask about consequential missing inputs.
 ```
 
-For a project already underway
+For a project already underway:
 
 ```text
 Use $agent-project-manager to take over this continuing project.
-Verify current progress, inventory artifacts and review evidence, preserve
-existing work, and close the most important delivery gaps milestone by milestone.
+Verify current progress against raw evidence, preserve existing services and
+compatible legacy gates, adopt two-plane sealing where supported, and close
+delivery gaps milestone by milestone.
 ```
-
-Generated role skills belong to the managed project. The PM supplies each role's instructions through the actual host channel and records the assigned model/session. A manual dispatch prompt supports environments where automatic delegation is unavailable.
 
 ![Purpose-built agent team](assets/illustrations/team.png)
 
 ## Optional tools
 
-Run the scripts with your environment's verified Python executable. These portable examples assume it is available as `python`.
+Run the scripts with your environment's verified Python executable (`python` below is a portable placeholder).
 
 ```bash
 python scripts/init_project.py /path/to/project/collaboration/project-office --name "Research portal"
+python scripts/artifact_control.py seal-scope /path/to/project/collaboration/project-office/artifacts/A09/v1/manifest.json --root /path/to/project --scope apps/backend/src apps/backend/tests --exclude-prefix collaboration/project-office
 python scripts/artifact_control.py seal /path/to/project/collaboration/project-office/artifacts/A01/v1/payload
-python scripts/artifact_control.py check /path/to/project/collaboration/project-office/records/artifacts.json
+python scripts/artifact_control.py check /path/to/project/collaboration/project-office/records/artifacts.json --project-root /path/to/project
 ```
 
-The initializer creates draft records. A delivery check fails until the declared required artifacts have sufficient records and verified file bindings. See [tooling and register format](references/tooling.md).
+`init_project.py` creates draft templates including `PROJECT-PROFILE.md` and `RULEBOOK.md`. `artifact_control.py check` enforces deliverable integrity, two-plane external evidence bindings, coordinator purity (`coordinator_actor`), append-only `review_history`, atomic `batches`, and independent defect closure. See [tooling and register format](references/tooling.md).
 
 ![Reviewed milestone delivery](assets/illustrations/delivery.png)
 
 ## Maturity
 
-Version 0.1.0 is an initial reusable extraction of an actively evolving field workflow, with local tool tests and independent forward-testing documented in [validation](docs/validation.md). Its originating project was still completing management-plan review and artifact formalization when this extraction began. Cross-host operation and long-duration effectiveness need further field evidence.
+Version 0.2.0 incorporates field hardening from multi-model software/data delivery runs, upgrading the structural tooling and documentation to eliminate reseal storms, premature sign-offs, coordinator drift, and quota bottlenecks. See [validation](docs/validation.md) for current automated check scope and observed limits.
 
-The skill instructs a host agent. The host provides scheduling, execution, persistent storage, permissions, and session lifecycle. The optional checker verifies record consistency and bytes. Review authenticity, substantive quality, and business acceptance require the designated people or agent sessions and their recorded evidence.
+The host supplies scheduling, execution channels, storage, and permissions. The optional checker verifies structural consistency and cryptographic bindings; authentic review and real-user acceptance remain the responsibility of designated reviewers and human approvers.
 
 ## Design sources
 
-The research considered BMAD Method, MetaGPT, Spec Kit, Superpowers, Deep Agents, and the Agent Skills format. The [source notes](references/design-sources.md) explain the specific design influences and retrieval date. This repository contains original instructions and utilities.
+Research considered BMAD Method, MetaGPT, Spec Kit, Superpowers, Deep Agents, and the Agent Skills specification, combined with field provenance documented in [design sources](references/design-sources.md).
 
 ## Contribute
 
-Open an issue with a concrete project scenario, expected behavior, observed result, and scrubbed evidence. For a change, include the affected workflow and relevant checks. Preserve user intent, explicit authority, evidence quality, and an appropriately sized process.
+Open an issue with a concrete project scenario, expected behavior, observed result, and scrubbed evidence. Before submitting changes, run:
 
 ```bash
 python -m unittest discover -s tests -v

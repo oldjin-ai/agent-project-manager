@@ -1,26 +1,34 @@
 # Project management plan
 
-Project {{PROJECT_NAME}}
+Project name {{PROJECT_NAME}}
 
-## Responsibilities and decisions
+## Risk tier, mode, and responsibilities
 
-Specify owners, required independent reviewers, acceptance authority, PM boundaries, escalation, and review of this plan and the PM skill.
+- Risk tier (`light` / `standard` / `strict`) and execution mode (`multi-agent` / `single-session`) — kept aligned with `PROJECT-PROFILE.md`.
+- Pure coordinator boundaries (`0` direct shell / `0` direct edits / `0` self-QA in multi-agent mode).
+- Owners, tiered independent reviewers, acceptance authority, escalation triggers, and bootstrap review (1–2 rounds max) of this plan and PM skill.
 
-## Delivery inventory and milestones
+## Delivery inventory, sealing, and batches
 
-List the required artifact types and milestone gates. Define task, artifact, milestone, and release states and their evidence.
+- Required artifact types, milestone gates, and atomic acceptance `batches` (no premature draft sign-offs).
+- Two-Plane Sealing mode (`seal-scope` or `seal`): deliverables sealed once on `draft -> in_review`; reviews/evidence/history live outside the deliverable manifest bound to `manifest_sha256`.
 
-## Evidence and review
+## Evidence, pre-gates, and review
 
-Specify version binding, verification methods, severity policy, correction retest, allowed exceptions, and evidence retention. Define the user-path or domain checks required for acceptance.
+- Mechanical pre-gates (lint, schema, digest, targeted tests) mandatory before invoking model reviewers.
+- Diff-based incremental re-review on Round 2+ (2 clean rounds stop full re-reads; fallback to full review on blocker escape or contract/shape change).
+- Severity policy (`blocking` / `major` / `minor`; zero open `blocking` or `major` at acceptance; `verifier != fixer` and `verifier != coordinator`).
+- 8-class real-user completeness rubric and honest empty/degraded state checks.
 
-## Execution and recovery
+## Execution, WIP, and recovery
 
-Specify dispatch/acknowledgement, writable ownership, monitoring, resource limits, retries, quota fallback, cancellation, and cross-session handover.
+- WIP limits (`<= 1` writer per writable scope, bounded global concurrency, read-only shared DB base + isolated clones).
+- Long-suite timeout budgeting, stalled-run kill-switch (90m zero-evidence settle), `429` freeze/fallback (never spoof reviewer), and 2-round anti-loop escalation.
 
-## Change control and status
+## Change control and status cadence
 
-Specify who may change scope, acceptance, resources, interfaces, and baselines, how downstream evidence becomes stale, and the status cadence.
+- Authoritative rulings recorded in append-only `RULEBOOK.md`.
+- Fixed 3-line executive status header (`Accepted N/M artifacts · Real-User Usable=Yes/No · Current Blocker`) and cross-session handover cadence.
 
 ## Plan review record
 

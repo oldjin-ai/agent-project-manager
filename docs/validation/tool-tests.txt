@@ -1,4 +1,4 @@
-Date 2026-11-16
+Date 2026-11-20
 Platform Windows
 Python 3.13.14
 Command python -m unittest discover -s tests -v
@@ -42,9 +42,22 @@ test_unauthorized_approver_fails (test_artifact_control.DeliveryTests.test_unaut
 test_unknown_milestone_fails (test_artifact_control.DeliveryTests.test_unknown_milestone_fails) ... ok
 test_unlisted_payload_file_fails (test_artifact_control.DeliveryTests.test_unlisted_payload_file_fails) ... ok
 test_verification_binding_fails (test_artifact_control.DeliveryTests.test_verification_binding_fails) ... ok
+test_atomic_batches_enforce_all_peers (test_artifact_control.TwoPlaneAndGovernanceTests.test_atomic_batches_enforce_all_peers) ... ok
+test_batches_are_scoped_to_selected_milestone (test_artifact_control.TwoPlaneAndGovernanceTests.test_batches_are_scoped_to_selected_milestone) ... ok
+test_cli_seal_scope_and_check_project_root (test_artifact_control.TwoPlaneAndGovernanceTests.test_cli_seal_scope_and_check_project_root) ... ok
+test_coordinator_actor_cannot_review_or_verify_defects (test_artifact_control.TwoPlaneAndGovernanceTests.test_coordinator_actor_cannot_review_or_verify_defects) ... ok
+test_duplicate_batch_membership_fails (test_artifact_control.TwoPlaneAndGovernanceTests.test_duplicate_batch_membership_fails) ... ok
+test_initializer_creates_profile_and_rulebook (test_artifact_control.TwoPlaneAndGovernanceTests.test_initializer_creates_profile_and_rulebook) ... ok
+test_review_history_detects_missing_or_tampered_round (test_artifact_control.TwoPlaneAndGovernanceTests.test_review_history_detects_missing_or_tampered_round) ... ok
+test_review_history_missing_file_and_scope_mismatch (test_artifact_control.TwoPlaneAndGovernanceTests.test_review_history_missing_file_and_scope_mismatch) ... ok
+test_scope_mode_detects_deliverable_edit_and_unsealed_file (test_artifact_control.TwoPlaneAndGovernanceTests.test_scope_mode_detects_deliverable_edit_and_unsealed_file) ... ok
+test_scope_self_reference_rejected_in_check (test_artifact_control.TwoPlaneAndGovernanceTests.test_scope_self_reference_rejected_in_check) ... ok
+test_seal_scope_refuses_overwrite_empty_and_self_reference (test_artifact_control.TwoPlaneAndGovernanceTests.test_seal_scope_refuses_overwrite_empty_and_self_reference) ... ok
+test_seal_scope_rejects_symlink_or_reparse_root (test_artifact_control.TwoPlaneAndGovernanceTests.test_seal_scope_rejects_symlink_or_reparse_root) ... ok
+test_seal_scope_skips_caches_and_zero_reseal_on_governance_writes (test_artifact_control.TwoPlaneAndGovernanceTests.test_seal_scope_skips_caches_and_zero_reseal_on_governance_writes) ... ok
 
 ----------------------------------------------------------------------
-Ran 39 tests in 1.810s
+Ran 52 tests in 2.894s
 
 OK
 
